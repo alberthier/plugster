@@ -18,9 +18,14 @@ class PadAdapter : GLib.Object
         ref();
 
         ElementAdapter parent = get_parent();
+        Canvas canvas = parent.canvas_item.get_canvas();
         canvas_item = CanvasGroup.create(parent.canvas_item);
-        text = CanvasText.create(canvas_item, pad.get_name(), 0, 0, -1, Gtk.AnchorType.NORTH_WEST);
-        text.font_desc = text.get_canvas().get_pango_context().get_font_description();
+        text = CanvasText.create(canvas_item, pad.get_name(),
+            0, 0,
+            -1,
+            Gtk.AnchorType.NORTH_WEST,
+            "fill-color", canvas.get_style().fg[Gtk.StateType.NORMAL].to_string(),
+            "font-desc", canvas.get_pango_context().get_font_description());
     }
 
     public double get_text_width()
@@ -40,6 +45,11 @@ class PadAdapter : GLib.Object
     public static double get_width(double text_width)
     {
         return text_width;
+    }
+
+    public static double get_height(double text_height)
+    {
+        return text_height;
     }
 
     public void init(double x, double y, double width, double height)

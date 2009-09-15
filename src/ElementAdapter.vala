@@ -9,6 +9,7 @@ class ElementAdapter : AbstractAdapter
     public ElementAdapter(Element elt, CanvasItem parent)
     {
         base(elt);
+        Gtk.Style style = parent.get_canvas().get_style();
         CanvasBounds bounds = CanvasBounds();
         canvas_item = CanvasGroup.create(parent);
 
@@ -19,8 +20,12 @@ class ElementAdapter : AbstractAdapter
 
         /////////////////////////////////////////
         // Element title
-        var title = CanvasText.create(canvas_item, element_data.element.get_name(), element_data.x, element_data.y, -1, Gtk.AnchorType.NORTH_WEST);
-        title.font_desc = title.get_canvas().get_pango_context().get_font_description();
+        var title = CanvasText.create(canvas_item, element_data.element.get_name(),
+            element_data.x, element_data.y,
+            -1,
+            Gtk.AnchorType.NORTH_WEST,
+            "fill-color", style.fg[Gtk.StateType.NORMAL].to_string(),
+            "font-desc", parent.get_canvas().get_pango_context().get_font_description());
         title.get_bounds(bounds);
         double title_width = bounds.x2 - bounds.x1;
         double title_height = bounds.y2 - bounds.y1;
@@ -67,11 +72,11 @@ class ElementAdapter : AbstractAdapter
                 case PadDirection.UNKNOWN:
                 case PadDirection.SINK:
                     pad_adapter.init(element_x, sink_pad_y, pads_max_width, pads_max_height);
-                    sink_pad_y += pads_max_height + base_margin;
+                    sink_pad_y += PadAdapter.get_height(pads_max_height) + base_margin;
                     break;
                 case PadDirection.SRC:
                     pad_adapter.init(element_x + element_width - pads_max_width, src_pad_y, pads_max_width, pads_max_height);
-                    src_pad_y += pads_max_height + base_margin;
+                    src_pad_y += PadAdapter.get_height(pads_max_height) + base_margin;
                     break;
             }
         }
@@ -85,7 +90,9 @@ class ElementAdapter : AbstractAdapter
             element_y,
             element_width,
             element_height,
-            "fill-color", "#ebe2d6", // TODO: get this from the theme
+            "fill-color", style.bg[Gtk.StateType.NORMAL].to_string(),
+            "stroke-color", style.dark[Gtk.StateType.NORMAL].to_string(),
+            "line-width", 2.0,
             "radius_x", double_margin,
             "radius_y", double_margin);
         boundingRect.lower(title);
