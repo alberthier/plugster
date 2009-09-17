@@ -43,8 +43,8 @@ class ElementAdapter : AbstractAdapter
         foreach (Pad pad in element_data.element.pads) {
             var pad_adapter = new PadAdapter(pad);
             pad_adapters.append(pad_adapter);
-            pads_max_width = double.max(pads_max_width, pad_adapter.get_text_width());
-            pads_max_height = double.max(pads_max_height, pad_adapter.get_text_height());
+            pads_max_width = double.max(pads_max_width, pad_adapter.get_width());
+            pads_max_height = double.max(pads_max_height, pad_adapter.get_height());
             switch(pad.get_direction())
             {
                 case PadDirection.UNKNOWN:
@@ -57,10 +57,8 @@ class ElementAdapter : AbstractAdapter
             }
         }
 
-        element_width = double.max(title_width,
-                                   PadAdapter.get_width(pads_max_width) *
-                                   (has_sink_pads + has_src_pads) +
-                                   quad_margin) + 2.0 * double_margin;
+        element_width = double.max(title_width, pads_max_width * (has_sink_pads + has_src_pads) + quad_margin)
+                        + 2.0 * double_margin;
         title.x = element_x + (element_width - title_width) / 2.0;
         title.y = element_y + double_margin;
 
@@ -72,11 +70,11 @@ class ElementAdapter : AbstractAdapter
                 case PadDirection.UNKNOWN:
                 case PadDirection.SINK:
                     pad_adapter.init(element_x, sink_pad_y, pads_max_width, pads_max_height);
-                    sink_pad_y += PadAdapter.get_height(pads_max_height) + base_margin;
+                    sink_pad_y += pads_max_height + base_margin;
                     break;
                 case PadDirection.SRC:
                     pad_adapter.init(element_x + element_width - pads_max_width, src_pad_y, pads_max_width, pads_max_height);
-                    src_pad_y += PadAdapter.get_height(pads_max_height) + base_margin;
+                    src_pad_y += pads_max_height + base_margin;
                     break;
             }
         }
