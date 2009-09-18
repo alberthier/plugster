@@ -19,7 +19,6 @@ class PipelineAdapter : AbstractAdapter
     {
         if (selection_data.type == Gdk.Atom.intern("application/x-plugster-element-factory", true)) {
             string factory_name = (string) selection_data.data;
-            stdout.printf("Drop '%s' at [%d, %d]\n", factory_name, x, y);
             Gtk.drag_finish(context, true, false, time);
             Element elt = ElementFactory.make(factory_name, "%s-%d".printf(factory_name, element_number++));
             ElementData data = new ElementData(elt);
