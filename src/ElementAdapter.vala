@@ -6,9 +6,15 @@ namespace Plugster
 
 class ElementAdapter : AbstractAdapter
 {
+    private double drag_x;
+    private double drag_y;
+
     public ElementAdapter(Element elt, CanvasItem parent)
     {
         base(elt);
+        drag_x = 0.0;
+        drag_y = 0.0;
+
         Gtk.Style style = parent.get_canvas().get_style();
         CanvasBounds bounds = CanvasBounds();
         canvas_item = CanvasGroup.create(parent);
@@ -93,6 +99,7 @@ class ElementAdapter : AbstractAdapter
             "radius_x", double_margin,
             "radius_y", double_margin);
         backgroundRect.lower(title);
+        canvas_item.button_press_event += start_drag;
 
         CanvasRect.create(canvas_item,
             element_x,
@@ -109,6 +116,35 @@ class ElementAdapter : AbstractAdapter
     ~ElementAdapter()
     {
         canvas_item.remove();
+    }
+
+    private bool start_drag(CanvasItem target, Gdk.EventButton event)
+    {
+        canvas_item.button_release_event += end_drag;
+        canvas_item.motion_notify_event += drag_move;
+        drag_x = event.x_root;
+        drag_y = event.y_root;
+        return false;
+    }
+
+    private bool end_drag(CanvasItem target, Gdk.EventButton event)
+    {
+        canvas_item.button_release_event -= end_drag;
+        canvas_item.motion_notify_event -= drag_move;
+        drag_x = 0.0;
+        drag_y = 0.0;
+        return false;
+    }
+
+    private bool drag_move(CanvasItem target, Gdk.EventMotion event)
+    {
+        double scale = canvas_item.get_canvas().get_scale();
+        double dx = (event.x_root - drag_x) * scale;
+        double dy = (event.y_root - drag_y) * scale;
+        canvas_item.translate(dx, dy);
+        drag_x = event.x_root;
+        drag_y = event.y_root;
+        return false;
     }
 }
 
