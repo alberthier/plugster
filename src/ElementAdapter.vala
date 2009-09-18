@@ -60,9 +60,9 @@ class ElementAdapter : AbstractAdapter
         element_width = double.max(title_width, pads_max_width * (has_sink_pads + has_src_pads) + quad_margin)
                         + 2.0 * double_margin;
         title.x = element_x + (element_width - title_width) / 2.0;
-        title.y = element_y + double_margin;
+        title.y = element_y + base_margin;
 
-        double sink_pad_y = element_y + title_height + 2.0 * double_margin;
+        double sink_pad_y = element_y + title_height + base_margin + double_margin;
         double src_pad_y = sink_pad_y;
         foreach (PadAdapter pad_adapter in pad_adapters) {
             switch(pad_adapter.pad.get_direction())
@@ -83,17 +83,26 @@ class ElementAdapter : AbstractAdapter
 
         /////////////////////////////////////////
         // Element background and bounding box.
-        var boundingRect = CanvasRect.create(canvas_item,
+        var backgroundRect = CanvasRect.create(canvas_item,
             element_x,
             element_y,
             element_width,
             element_height,
             "fill-color", style.bg[Gtk.StateType.NORMAL].to_string(),
+            "line-width", 0.0,
+            "radius_x", double_margin,
+            "radius_y", double_margin);
+        backgroundRect.lower(title);
+
+        CanvasRect.create(canvas_item,
+            element_x,
+            element_y,
+            element_width,
+            element_height,
             "stroke-color", style.dark[Gtk.StateType.NORMAL].to_string(),
             "line-width", 2.0,
             "radius_x", double_margin,
             "radius_y", double_margin);
-        boundingRect.lower(title);
         /////////////////////////////////////////
     }
 
