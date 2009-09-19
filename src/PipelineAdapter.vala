@@ -11,6 +11,7 @@ class PipelineAdapter : AbstractAdapter
     public PipelineAdapter(Element elt, Canvas canvas)
     {
         base(elt);
+        ((Pipeline) elt).element_added += on_element_added;
         canvas_item = canvas.get_root_item();
         canvas.drag_data_received += create_new_element;
     }
@@ -26,6 +27,11 @@ class PipelineAdapter : AbstractAdapter
             data.y = y;
             ((Pipeline) element_data.element).add(elt);
         }
+    }
+
+    private void on_element_added(Element element)
+    {
+        new ElementAdapter(element, canvas_item);
     }
 }
 

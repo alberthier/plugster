@@ -98,15 +98,10 @@ class PipelineController : GLib.Object
         if (elt is Pipeline) {
             root_pipeline = (Pipeline) elt;
             new ElementData(root_pipeline);
-            root_pipeline.element_added += on_element_added;
             new PipelineAdapter(root_pipeline, canvas);
         }
     }
 
-    private void on_element_added(Element element)
-    {
-        new ElementAdapter(element, canvas.get_root_item());
-    }
 }
 
 }
