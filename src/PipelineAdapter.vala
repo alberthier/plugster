@@ -6,13 +6,20 @@ namespace Plugster
 
 class PipelineAdapter : AbstractAdapter
 {
+    private enum Layers {
+        ELEMENTS,
+        LINKS
+    }
     private int element_number;
 
     public PipelineAdapter(Element elt, Canvas canvas)
     {
         base(elt);
         ((Pipeline) elt).element_added += on_element_added;
-        canvas_item = canvas.get_root_item();
+        canvas_item = CanvasGroup.create(canvas.get_root_item());
+        CanvasGroup.create(canvas_item); // Elements layer
+        CanvasGroup.create(canvas_item); // Links layer
+
         canvas.drag_data_received += create_new_element;
     }
 
@@ -31,7 +38,7 @@ class PipelineAdapter : AbstractAdapter
 
     private void on_element_added(Element element)
     {
-        new ElementAdapter(element, canvas_item);
+        new ElementAdapter(element, (CanvasItem) ((CanvasGroup) canvas_item).items.index(Layers.ELEMENTS));
     }
 }
 
