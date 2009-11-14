@@ -18,6 +18,7 @@ class ElementAdapter : AbstractAdapter
         Gtk.Style style = parent.get_canvas().get_style();
         CanvasBounds bounds = CanvasBounds();
         canvas_item = CanvasGroup.create(parent);
+        canvas_item.button_press_event += on_start_drag;
 
         double element_x = element_data.x;
         double element_y = element_data.y;
@@ -99,7 +100,6 @@ class ElementAdapter : AbstractAdapter
             "radius_x", double_margin,
             "radius_y", double_margin);
         backgroundRect.lower(title);
-        canvas_item.button_press_event += start_drag;
 
         CanvasRect.create(canvas_item,
             element_x,
@@ -118,25 +118,25 @@ class ElementAdapter : AbstractAdapter
         canvas_item.remove();
     }
 
-    private bool start_drag(CanvasItem target, Gdk.EventButton event)
+    private bool on_start_drag(CanvasItem target, Gdk.EventButton event)
     {
-        canvas_item.button_release_event += end_drag;
-        canvas_item.motion_notify_event += drag_move;
+        canvas_item.button_release_event += on_end_drag;
+        canvas_item.motion_notify_event += on_drag_move;
         drag_x = event.x_root;
         drag_y = event.y_root;
         return false;
     }
 
-    private bool end_drag(CanvasItem target, Gdk.EventButton event)
+    private bool on_end_drag(CanvasItem target, Gdk.EventButton event)
     {
-        canvas_item.button_release_event -= end_drag;
-        canvas_item.motion_notify_event -= drag_move;
+        canvas_item.button_release_event -= on_end_drag;
+        canvas_item.motion_notify_event -= on_drag_move;
         drag_x = 0.0;
         drag_y = 0.0;
         return false;
     }
 
-    private bool drag_move(CanvasItem target, Gdk.EventMotion event)
+    private bool on_drag_move(CanvasItem target, Gdk.EventMotion event)
     {
         double scale = canvas_item.get_canvas().get_scale();
         double dx = (event.x_root - drag_x) * scale;

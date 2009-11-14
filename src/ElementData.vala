@@ -18,7 +18,7 @@ class ElementData : GLib.Object
 
     public ElementData(Element elt)
     {
-        element = elt;
+        GLib.Object(element: elt);
         element.set_qdata_full(QUARK, this.ref(), unref);
         element.object_saved += save_coords;
     }
