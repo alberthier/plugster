@@ -4,23 +4,26 @@ using Goo;
 namespace Plugster
 {
 
-class PipelineAdapter : AbstractAdapter
+class PipelineAdapter : AbstractElementAdapter
 {
-    private enum Layers {
-        ELEMENTS,
-        LINKS
-    }
+    private weak CanvasGroup elements_layer;
+    private weak CanvasGroup links_layer;
     private int element_number;
 
-    public PipelineAdapter(Element elt, Canvas canvas)
+    public PipelineAdapter(Pipeline pipeline, Canvas canvas)
     {
-        base(elt);
-        ((Pipeline) elt).element_added += on_element_added;
+        base(pipeline);
+        pipeline.element_added += on_element_added;
         canvas_item = CanvasGroup.create(canvas.get_root_item());
-        CanvasGroup.create(canvas_item); // Elements layer
-        CanvasGroup.create(canvas_item); // Links layer
+        elements_layer = CanvasGroup.create(canvas_item);
+        links_layer = CanvasGroup.create(canvas_item);
 
         canvas.drag_data_received += create_new_element;
+    }
+
+    public Pipeline get_pipeline()
+    {
+        return (Pipeline) gst_object;
     }
 
     private void create_new_element(Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time)
@@ -32,13 +35,13 @@ class PipelineAdapter : AbstractAdapter
             ElementData data = new ElementData(elt);
             data.x = x;
             data.y = y;
-            ((Pipeline) element_data.element).add(elt);
+            get_pipeline().add(elt);
         }
     }
 
     private void on_element_added(Element element)
     {
-        new ElementAdapter(element, (CanvasItem) ((CanvasGroup) canvas_item).items.index(Layers.ELEMENTS));
+        new ElementAdapter(element, elements_layer);
     }
 }
 

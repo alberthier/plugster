@@ -4,7 +4,7 @@ using Goo;
 namespace Plugster
 {
 
-class ElementAdapter : AbstractAdapter
+class ElementAdapter : AbstractElementAdapter
 {
     private double drag_x;
     private double drag_y;
@@ -20,6 +20,7 @@ class ElementAdapter : AbstractAdapter
         canvas_item = CanvasGroup.create(parent);
         canvas_item.button_press_event += on_start_drag;
 
+        ElementData element_data = get_element_data();
         double element_x = element_data.x;
         double element_y = element_data.y;
         double element_width = 0.0;
@@ -36,8 +37,8 @@ class ElementAdapter : AbstractAdapter
         title.get_bounds(bounds);
         double title_width = bounds.x2 - bounds.x1;
         double title_height = bounds.y2 - bounds.y1;
-        element_x -= title_width / 2.0 + double_margin;
-        element_y -= title_height / 2.0 + double_margin;
+        element_x -= title_width / 2.0 + DOUBLE_PADDING;
+        element_y -= title_height / 2.0 + DOUBLE_PADDING;
         /////////////////////////////////////////
 
         /////////////////////////////////////////
@@ -64,28 +65,28 @@ class ElementAdapter : AbstractAdapter
             }
         }
 
-        element_width = double.max(title_width, pads_max_width * (has_sink_pads + has_src_pads) + quad_margin)
-                        + 2.0 * double_margin;
+        element_width = double.max(title_width, pads_max_width * (has_sink_pads + has_src_pads) + 2.0 * DOUBLE_PADDING)
+                        + 2.0 * DOUBLE_PADDING;
         title.x = element_x + (element_width - title_width) / 2.0;
-        title.y = element_y + base_margin;
+        title.y = element_y + BASE_PADDING;
 
-        double sink_pad_y = element_y + title_height + base_margin + double_margin;
+        double sink_pad_y = element_y + title_height + BASE_PADDING + DOUBLE_PADDING;
         double src_pad_y = sink_pad_y;
         foreach (PadAdapter pad_adapter in pad_adapters) {
-            switch(pad_adapter.pad.get_direction())
+            switch(pad_adapter.get_pad().get_direction())
             {
                 case PadDirection.UNKNOWN:
                 case PadDirection.SINK:
                     pad_adapter.init(element_x, sink_pad_y, pads_max_width, pads_max_height);
-                    sink_pad_y += pads_max_height + base_margin;
+                    sink_pad_y += pads_max_height + BASE_PADDING;
                     break;
                 case PadDirection.SRC:
                     pad_adapter.init(element_x + element_width - pads_max_width, src_pad_y, pads_max_width, pads_max_height);
-                    src_pad_y += pads_max_height + base_margin;
+                    src_pad_y += pads_max_height + BASE_PADDING;
                     break;
             }
         }
-        element_height = double.max(sink_pad_y, src_pad_y) - element_y + double_margin;
+        element_height = double.max(sink_pad_y, src_pad_y) - element_y + DOUBLE_PADDING;
         /////////////////////////////////////////
 
         /////////////////////////////////////////
@@ -97,8 +98,8 @@ class ElementAdapter : AbstractAdapter
             element_height,
             "fill-color", style.bg[Gtk.StateType.NORMAL].to_string(),
             "line-width", 0.0,
-            "radius_x", double_margin,
-            "radius_y", double_margin);
+            "radius_x", DOUBLE_PADDING,
+            "radius_y", DOUBLE_PADDING);
         backgroundRect.lower(title);
 
         CanvasRect.create(canvas_item,
@@ -108,8 +109,8 @@ class ElementAdapter : AbstractAdapter
             element_height,
             "stroke-color", style.dark[Gtk.StateType.NORMAL].to_string(),
             "line-width", 2.0,
-            "radius_x", double_margin,
-            "radius_y", double_margin);
+            "radius_x", DOUBLE_PADDING,
+            "radius_y", DOUBLE_PADDING);
         /////////////////////////////////////////
     }
 

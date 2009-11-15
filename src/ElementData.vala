@@ -8,7 +8,6 @@ class ElementData : GLib.Object
     public weak Element element { get; construct; }
     public int x { get; set; }
     public int y { get; set; }
-    public AbstractAdapter adapter { get; set; }
     private static const Quark QUARK = Quark.from_string("plugster:element-data");
     private static const string XML_NS            = "plugster";
     private static const string XML_COORDS_TAG    = "coords";
