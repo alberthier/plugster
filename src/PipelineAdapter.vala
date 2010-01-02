@@ -13,7 +13,7 @@ class PipelineAdapter : AbstractElementAdapter
     public PipelineAdapter(Pipeline pipeline, Canvas canvas)
     {
         base(pipeline);
-        element_numbers = new HashTable<string, int>(GLib.str_hash, GLib.str_equal);
+        element_numbers = new HashTable<string, int>.full(GLib.str_hash, GLib.str_equal, release_hash_items, null);
         canvas_item = CanvasGroup.create(canvas.get_root_item());
         elements_layer = CanvasGroup.create(canvas_item);
         links_layer = CanvasGroup.create(canvas_item);
@@ -32,8 +32,8 @@ class PipelineAdapter : AbstractElementAdapter
         if (selection_data.type == Gdk.Atom.intern("application/x-plugster-element-factory", true)) {
             string factory_name = (string) selection_data.data;
             Gtk.drag_finish(context, true, false, time);
-            int n = element_numbers.lookup(factory_name);
-            element_numbers.insert(factory_name, ++n);
+            int n = element_numbers.lookup(factory_name) + 1;
+            element_numbers.insert(factory_name, n);
             Element elt = ElementFactory.make(factory_name, "%s-%d".printf(factory_name, n));
             ElementData data = new ElementData(elt);
             data.x = x;
@@ -45,6 +45,11 @@ class PipelineAdapter : AbstractElementAdapter
     private void on_element_added(Element element)
     {
         new ElementAdapter(element, elements_layer);
+    }
+
+    private static void release_hash_items(void* data)
+    {
+        free(data);
     }
 }
 

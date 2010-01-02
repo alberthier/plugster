@@ -8,6 +8,7 @@ class MainWindowController : GLib.Object
 {
     private Window mainwindow;
     private PipelineController pipeline_controller;
+    private PropertyEditorController property_editor_controller;
 
     public void initialize(string prefix)
     {
@@ -19,12 +20,15 @@ class MainWindowController : GLib.Object
 
                 var elements_treeview_scrollwindow = (ScrolledWindow) builder.get_object("elements_treeview_scrollwindow");
                 var pipeline_canvas_scrollwindow = (ScrolledWindow) builder.get_object("pipeline_canvas_scrollwindow");
+                var property_editor_scrollwindow = (ScrolledWindow) builder.get_object("property_editor_scrollwindow");
 
                 elements_treeview_scrollwindow.add(new ElementFactoriesWidget());
                 PipelineCanvas canvas = new PipelineCanvas();
                 pipeline_canvas_scrollwindow.add(canvas);
 
                 pipeline_controller = new PipelineController(mainwindow, canvas);
+                property_editor_controller = new PropertyEditorController();
+                property_editor_scrollwindow.add(property_editor_controller.tree_view);
 
                 Action action = (Action) builder.get_object("action_new");
                 action.activate += pipeline_controller.reset;

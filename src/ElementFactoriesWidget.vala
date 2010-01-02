@@ -14,8 +14,19 @@ class ElementFactoriesWidget : TreeView
     construct
     {
         width_request = 230;
+
+        var column = new TreeViewColumn();
+        column.set_title("Element");
+
+        var icon_renderer = new CellRendererPixbuf();
+        icon_renderer.icon_name = "gtk-open";
+        column.pack_start(icon_renderer, false);
+        column.add_attribute(icon_renderer, "icon-name", ElementFactoriesModel.Columns.ICON);
+
         var renderer = new CellRendererText();
-        var column = new TreeViewColumn.with_attributes("Element", renderer, "text", ElementFactoriesModel.Columns.NAME, null);
+        column.pack_start(renderer, true);
+        column.add_attribute(renderer, "text", ElementFactoriesModel.Columns.NAME);
+
         append_column(column);
         enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, drag_targets, Gdk.DragAction.COPY);
         set_model(new ElementFactoriesModel());

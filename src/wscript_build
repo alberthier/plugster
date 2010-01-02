@@ -5,8 +5,6 @@ obj = bld.new_task_gen(
     features = 'cc cprogram',
     packages = 'gtk+-2.0 gstreamer-0.10 goocanvas libxml-2.0',
     target = 'plugster',
-    uselib = 'GLIB GTK GSTREAMER GOOCANVAS PANGO XML'
+    uselib = 'GLIB GTK GSTREAMER GOOCANVAS PANGO XML',
+    source = bld.path.ant_glob(incl = '**/*.vala')
     )
-
-obj.find_sources_in_dirs('.') # take the sources in the current folder
-

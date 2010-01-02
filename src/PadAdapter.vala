@@ -6,7 +6,7 @@ namespace Plugster
 
 class PadAdapter : AbstractAdapter
 {
-    public weak LinkAdapter? link_adapter {get; set; }
+    public weak LinkAdapter? link_adapter { get; set; }
     private weak CanvasText text;
     private weak CanvasEllipse connector;
     private static const double CONNECTOR_RADIUS = 5.0;

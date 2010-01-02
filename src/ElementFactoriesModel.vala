@@ -9,6 +9,7 @@ class ElementFactoriesModel : TreeStore
     public enum Columns {
         NAME,
         ELEMENT_FACTORY_POINTER,
+        ICON,
         NB_COLUMNS
     }
 
@@ -17,6 +18,7 @@ class ElementFactoriesModel : TreeStore
         GLib.Type[] types = new GLib.Type[Columns.NB_COLUMNS];
         types[Columns.NAME] = typeof(string);
         types[Columns.ELEMENT_FACTORY_POINTER] = typeof(ElementFactory);
+        types[Columns.ICON] = typeof(string);
         set_column_types(types);
 
         var registry = Registry.get_default();
@@ -32,7 +34,11 @@ class ElementFactoriesModel : TreeStore
             } else {
                 append(out current, null);
             }
-            set(current, Columns.NAME, factory.get_longname(), Columns.ELEMENT_FACTORY_POINTER, factory, -1);
+            set(current,
+                Columns.NAME, factory.get_longname(),
+                Columns.ELEMENT_FACTORY_POINTER, factory,
+                Columns.ICON, STOCK_CONNECT,
+                -1);
         }
     }
 
@@ -65,7 +71,7 @@ class ElementFactoriesModel : TreeStore
                 } else {
                     append(out current, null);
                 }
-                set(current, Columns.NAME, section, -1);
+                set(current, Columns.NAME, section, Columns.ICON, STOCK_DIRECTORY, -1);
             }
 
             parent = current;
