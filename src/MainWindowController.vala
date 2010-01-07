@@ -82,6 +82,7 @@ class MainWindowController : GLib.Object
 
     private void quit_app()
     {
+        pipeline_controller.close();
         Gtk.main_quit();
     }
 

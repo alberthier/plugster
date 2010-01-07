@@ -20,6 +20,7 @@ class PipelineAdapter : AbstractElementAdapter
 
         pipeline.element_added += on_element_added;
         canvas.drag_data_received += create_new_element;
+        canvas.button_press_event += on_button_pressed;
     }
 
     public Pipeline get_pipeline()
@@ -39,12 +40,25 @@ class PipelineAdapter : AbstractElementAdapter
             data.x = x;
             data.y = y;
             get_pipeline().add(elt);
+            Selection selection = data.get_selection();
+            selection.select(elt);
         }
     }
 
     private void on_element_added(Element element)
     {
         new ElementAdapter(element, elements_layer);
+    }
+
+    private bool on_button_pressed(Gdk.EventButton event)
+    {
+        if (event.button == 1) // Left button
+        {
+            if (links_layer.canvas.get_items_at(event.x, event.y, false) == null) {
+                Selection.get_selection(get_pipeline()).clear();
+            }
+        }
+        return false;
     }
 
     private static void release_hash_items(void* data)

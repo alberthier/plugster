@@ -15,6 +15,8 @@ class ElementData : GLib.Object
     private static const string XML_COORDS_X_TAG  = "x";
     private static const string XML_COORDS_Y_TAG  = "y";
 
+    public signal void selected_state_changed();
+
     public ElementData(Element elt)
     {
         GLib.Object(element: elt);
@@ -59,17 +61,31 @@ class ElementData : GLib.Object
         }
     }
 
+    public Pipeline get_pipeline()
+    {
+        if (element is Pipeline) {
+            return (Pipeline) element;
+        } else {
+            return get_element_data((Element) element.parent).get_pipeline();
+        }
+    }
+
+    public Selection get_selection()
+    {
+        return Selection.get_selection(get_pipeline());
+    }
+
+    public static ElementData get_element_data(Element elt)
+    {
+        return (ElementData) elt.get_qdata(QUARK);
+    }
+
     private static bool ckeck_xml_node(Xml.Node* node)
     {
         return node->type == Xml.ElementType.ELEMENT_NODE
                 && node->ns->type == Xml.ElementType.ELEMENT_NODE
                 && node->ns->href == XML_HREF
                 && node->ns->prefix == XML_NS;
-    }
-
-    public static ElementData get_element_data(Element elt)
-    {
-        return (ElementData) elt.get_qdata(QUARK);
     }
 
     private void save_coords(Xml.Node* parent)

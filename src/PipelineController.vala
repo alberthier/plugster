@@ -45,6 +45,11 @@ class PipelineController : GLib.Object
         }
     }
 
+    public void close()
+    {
+        Selection.get_selection(root_pipeline).clear();
+    }
+
     public void save()
     {
         if (filepath == null) {
@@ -98,6 +103,7 @@ class PipelineController : GLib.Object
         if (elt is Pipeline) {
             root_pipeline = (Pipeline) elt;
             new ElementData(root_pipeline);
+            new Selection(root_pipeline);
             new PipelineAdapter(root_pipeline, canvas);
         }
     }

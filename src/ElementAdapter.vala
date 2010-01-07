@@ -9,6 +9,10 @@ class ElementAdapter : AbstractElementAdapter
     private double drag_x;
     private double drag_y;
 
+    CanvasRect background_rect;
+    CanvasPath selection_indicator;
+    CanvasText title;
+
     public ElementAdapter(Element elt, CanvasItem parent)
     {
         base(elt);
@@ -21,6 +25,8 @@ class ElementAdapter : AbstractElementAdapter
         canvas_item.button_press_event += on_start_drag;
 
         ElementData element_data = get_element_data();
+        element_data.selected_state_changed += update_selection_indicator;
+
         double element_x = element_data.x;
         double element_y = element_data.y;
         double element_width = 0.0;
@@ -28,12 +34,14 @@ class ElementAdapter : AbstractElementAdapter
 
         /////////////////////////////////////////
         // Element title
-        var title = CanvasText.create(canvas_item, element_data.element.get_name(),
+        Pango.FontDescription font_desc = parent.get_canvas().get_pango_context().get_font_description().copy();
+        font_desc.set_weight(Pango.Weight.BOLD);
+        title = CanvasText.create(canvas_item, element_data.element.get_name(),
             element_data.x, element_data.y,
             -1,
             Gtk.AnchorType.NORTH_WEST,
             "fill-color", style.fg[Gtk.StateType.NORMAL].to_string(),
-            "font-desc", parent.get_canvas().get_pango_context().get_font_description());
+            "font-desc", font_desc);
         title.get_bounds(bounds);
         double title_width = bounds.x2 - bounds.x1;
         double title_height = bounds.y2 - bounds.y1;
@@ -91,7 +99,12 @@ class ElementAdapter : AbstractElementAdapter
 
         /////////////////////////////////////////
         // Element background and bounding box.
-        var backgroundRect = CanvasRect.create(canvas_item,
+        selection_indicator = CanvasPath.create(canvas_item,
+            "m %d %d a %d %d 0 0 1 %d -%d h %d a %d %d 0 0 1 %d %d v %d h -%d v -%d".printf((int) element_x, (int) (element_y + DOUBLE_PADDING), (int) DOUBLE_PADDING, (int) DOUBLE_PADDING, (int) DOUBLE_PADDING, (int) DOUBLE_PADDING, (int) (element_width - 2.0 * DOUBLE_PADDING), (int) DOUBLE_PADDING, (int) DOUBLE_PADDING, (int) DOUBLE_PADDING, (int) DOUBLE_PADDING, (int) title_height, (int) element_width, (int) title_height),
+            "fill-color", style.bg[Gtk.StateType.SELECTED].to_string(),
+            "line-width", 0.0);
+
+        background_rect = CanvasRect.create(canvas_item,
             element_x,
             element_y,
             element_width,
@@ -100,7 +113,7 @@ class ElementAdapter : AbstractElementAdapter
             "line-width", 0.0,
             "radius_x", DOUBLE_PADDING,
             "radius_y", DOUBLE_PADDING);
-        backgroundRect.lower(title);
+        background_rect.lower(title);
 
         CanvasRect.create(canvas_item,
             element_x,
@@ -112,6 +125,8 @@ class ElementAdapter : AbstractElementAdapter
             "radius_x", DOUBLE_PADDING,
             "radius_y", DOUBLE_PADDING);
         /////////////////////////////////////////
+
+        update_selection_indicator();
     }
 
     ~ElementAdapter()
@@ -121,10 +136,19 @@ class ElementAdapter : AbstractElementAdapter
 
     private bool on_start_drag(CanvasItem target, Gdk.EventButton event)
     {
-        canvas_item.button_release_event += on_end_drag;
-        canvas_item.motion_notify_event += on_drag_move;
-        drag_x = event.x_root;
-        drag_y = event.y_root;
+        if (event.button == 1) // Left button
+        {
+            Selection selection = get_element_data().get_selection();
+            if ((event.state & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.BUTTON1_MASK)) != 0) {
+                selection.toggle(get_element_data().element);
+            } else {
+                selection.select(get_element_data().element);
+            }
+            canvas_item.button_release_event += on_end_drag;
+            canvas_item.motion_notify_event += on_drag_move;
+            drag_x = event.x_root;
+            drag_y = event.y_root;
+        }
         return false;
     }
 
@@ -146,6 +170,23 @@ class ElementAdapter : AbstractElementAdapter
         drag_x = event.x_root;
         drag_y = event.y_root;
         return false;
+    }
+
+    private void update_selection_indicator()
+    {
+        ElementData element_data = get_element_data();
+        Gtk.Style style = canvas_item.get_canvas().get_style();
+
+        if (element_data.get_selection().contains(element_data.element)) {
+            title.fill_color = style.fg[Gtk.StateType.SELECTED].to_string();
+            background_rect.stroke_color = style.dark[Gtk.StateType.SELECTED].to_string();
+            selection_indicator.raise(background_rect);
+            selection_indicator.lower(title);
+        } else {
+            title.fill_color = style.fg[Gtk.StateType.NORMAL].to_string();
+            background_rect.stroke_color = style.dark[Gtk.StateType.NORMAL].to_string();
+            selection_indicator.lower(background_rect);
+        }
     }
 }
 
