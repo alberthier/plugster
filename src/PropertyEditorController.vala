@@ -1,4 +1,5 @@
 using Gtk;
+using Gst;
 
 namespace Plugster
 {
@@ -6,8 +7,7 @@ namespace Plugster
 class PropertyEditorController : GLib.Object
 {
     public TreeView tree_view { get; set; }
-
-    private GLib.Object tmp;
+    private Selection? selection;
 
     public PropertyEditorController()
     {
@@ -27,11 +27,19 @@ class PropertyEditorController : GLib.Object
                                                     "property_value", PropertyEditorModel.Columns.PROPERTY_VALUE,
                                                     null);
         tree_view.append_column(column);
+    }
 
-        var objects = new List<weak GLib.Object>();
-        tmp = Gst.ElementFactory.make("tee", "tee1");
-        objects.append(tmp);
-        model.set_objects(objects);
+    public void on_pipeline_changed(Pipeline new_pipeline)
+    {
+        selection = Selection.get_selection(new_pipeline);
+        selection.selection_changed += on_selection_changed;
+    }
+
+    public void on_selection_changed()
+    {
+        if (selection != null) {
+            ((PropertyEditorModel) tree_view.model).set_objects(selection.get_selected_elements());
+        }
     }
 }
 

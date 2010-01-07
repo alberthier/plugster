@@ -11,12 +11,12 @@ class PropertyEditorCellRenderer : CellRenderer
 
     private HashTable<ParamSpec, CellRenderer> renderers;
 
+    public signal void edited(string path, string new_value);
+
     construct
     {
         reset();
     }
-
-    public signal void edited(string path, string new_text);
 
     public override bool activate(Event event, Widget widget, string path, Rectangle background_area, Rectangle cell_area, CellRendererState flags)
     {
@@ -270,7 +270,6 @@ class PropertyEditorCellRenderer : CellRenderer
     {
         edited(path, new_text);
     }
-
 }
 
 }

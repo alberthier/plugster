@@ -8,6 +8,8 @@ namespace Plugster
         private GLib.List<weak Element> selected_elements;
         private static const Quark QUARK = Quark.from_string("plugster:selection");
 
+        public signal void selection_changed();
+
         public Selection(Pipeline pipe)
         {
             pipeline = pipe;
@@ -26,6 +28,7 @@ namespace Plugster
             if (!contains(elt)) {
                 selected_elements.append(elt);
                 ElementData.get_element_data(elt).selected_state_changed();
+                selection_changed();
             }
         }
 
@@ -34,6 +37,7 @@ namespace Plugster
             if (contains(elt)) {
                 selected_elements.remove(elt);
                 ElementData.get_element_data(elt).selected_state_changed();
+                selection_changed();
             }
         }
 
@@ -44,6 +48,7 @@ namespace Plugster
             foreach (Element elt in previously_selected_elements) {
                 ElementData.get_element_data(elt).selected_state_changed();
             }
+            selection_changed();
         }
 
         public void select(Element elt)
@@ -64,6 +69,11 @@ namespace Plugster
         public bool contains(Element elt)
         {
             return selected_elements.find(elt) != null;
+        }
+
+        public unowned GLib.List<weak Element> get_selected_elements()
+        {
+            return selected_elements;
         }
     }
 }

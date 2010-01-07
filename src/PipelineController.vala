@@ -13,6 +13,8 @@ class PipelineController : GLib.Object
     private string  filepath;
     private static const string root_pipeline_name = "plugster_root";
 
+    public signal void pipeline_changed(Pipeline new_pipeline);
+
     public PipelineController(Window root_win, PipelineCanvas canvas)
     {
         this.root_widget = root_win;
@@ -105,6 +107,7 @@ class PipelineController : GLib.Object
             new ElementData(root_pipeline);
             new Selection(root_pipeline);
             new PipelineAdapter(root_pipeline, canvas);
+            pipeline_changed(root_pipeline);
         }
     }
 

@@ -29,6 +29,7 @@ class MainWindowController : GLib.Object
                 pipeline_controller = new PipelineController(mainwindow, canvas);
                 property_editor_controller = new PropertyEditorController();
                 property_editor_scrollwindow.add(property_editor_controller.tree_view);
+                pipeline_controller.pipeline_changed += property_editor_controller.on_pipeline_changed;
 
                 Action action = (Action) builder.get_object("action_new");
                 action.activate += pipeline_controller.reset;

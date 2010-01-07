@@ -22,7 +22,7 @@ class PropertyEditorModel : GLib.Object, TreeModel
 
     public void set_objects(List<weak GLib.Object> objs)
     {
-        for (uint index = 0; index < param_specs.length(); ++index) {
+        for (int index = (int) param_specs.length() - 1; index >= 0 ; --index) {
             TreePath path = new TreePath.from_indices(index, -1);
             row_deleted(path);
         }
@@ -65,35 +65,60 @@ class PropertyEditorModel : GLib.Object, TreeModel
         }
     }
 
-    public void set_property_value(string path, string new_value)
+    public void set_property_value(string path, string new_text)
     {
         TreePath tree_path = new TreePath.from_string(path);
         TreeIter iter = {};
         get_iter(out iter, tree_path);
         weak ParamSpec param_spec = ((ParamSpec) iter.user_data);
-        string property_name = param_spec.get_name();
-        Value property_value = {};
 
-        if (param_spec.value_type.is_a(Type.ENUM)) {
+        Value new_value = {};
+        new_value.init(param_spec.value_type);
+
+        if (param_spec.value_type == typeof(char)) {
+            new_value.set_char((char) new_text.to_int());
+        } else if (param_spec.value_type == typeof(uchar)) {
+            new_value.set_uchar((uchar) new_text.to_int());
+        } else if (param_spec.value_type == typeof(int)) {
+            new_value.set_int(new_text.to_int());
+        } else if (param_spec.value_type == typeof(uint)) {
+            new_value.set_uint((uint) new_text.to_int());
+        } else if (param_spec.value_type == typeof(long)) {
+            new_value.set_long(new_text.to_long());
+        } else if (param_spec.value_type == typeof(ulong)) {
+            new_value.set_ulong(new_text.to_ulong());
+        } else if (param_spec.value_type == typeof(int64)) {
+            new_value.set_int64(new_text.to_int64());
+        } else if (param_spec.value_type == typeof(uint64)) {
+            new_value.set_uint64((uint64) new_text.to_int64());
+        } else if (param_spec.value_type == typeof(float)) {
+            new_value.set_float((float) new_text.to_double());
+        } else if (param_spec.value_type == typeof(double)) {
+            new_value.set_double(new_text.to_double());
+        } else if (param_spec.value_type == typeof(bool)) {
+            new_value.set_boolean(new_text == "Yes");
+        } else if (param_spec.value_type == typeof(string)) {
+            new_value.set_string(new_text);
+        } else if (param_spec.value_type.is_a(Type.ENUM)) {
             weak ParamSpecEnum param_spec_enum = (ParamSpecEnum) param_spec;
             weak EnumClass enum_class = param_spec_enum.enum_class;
-            for (uint i = 0; i < enum_class.n_values;  ++i) {
+            for (int i = 0; i < enum_class.n_values;  ++i) {
                 EnumValue* enum_val = &(enum_class.values[i]);
-                if (new_value == enum_val->value_name) {
-                    property_value.init(typeof(uint));
-                    property_value.set_uint(i);
+                if (new_text == enum_val->value_name) {
+                    new_value.set_enum(i);
+                    break;
                 }
             }
-        } else if (param_spec.value_type == typeof(bool)) {
-            property_value.init(typeof(bool));
-            property_value.set_boolean(new_value == "Yes");
-        } else {
-            property_value.init(typeof(string));
-            property_value.set_string(new_value);
+       } else {
+            Value text_value = {};
+            text_value.init(typeof(string));
+            text_value.set_string(new_text);
+            text_value.transform(ref new_value);
         }
 
+        string property_name = param_spec.get_name();
         foreach (GLib.Object object in objects) {
-            object.set_property(property_name, property_value);
+            object.set_property(property_name, new_value);
         }
 
         row_changed(tree_path, iter);
@@ -237,18 +262,20 @@ class PropertyEditorModel : GLib.Object, TreeModel
     {
         Value value = {};
         value.init(param_spec.value_type);
-        bool first = true;
-        foreach(GLib.Object object in objects) {
-            if (first) {
-                first = false;
-                object.get_property(param_spec.get_name(), ref value);
-            } else {
-                Value tmp_value = {};
-                tmp_value.init(param_spec.value_type);
-                object.get_property(param_spec.get_name(), ref tmp_value);
-                if (param_spec.values_cmp(tmp_value, value) != 0) {
-                    value.unset();
-                    break;
+        if ((param_spec.flags & ParamFlags.READABLE) != 0) {
+            bool first = true;
+            foreach(GLib.Object object in objects) {
+                if (first) {
+                    first = false;
+                    object.get_property(param_spec.get_name(), ref value);
+                } else {
+                    Value tmp_value = {};
+                    tmp_value.init(param_spec.value_type);
+                    object.get_property(param_spec.get_name(), ref tmp_value);
+                    if (param_spec.values_cmp(tmp_value, value) != 0) {
+                        value.unset();
+                        break;
+                    }
                 }
             }
         }
