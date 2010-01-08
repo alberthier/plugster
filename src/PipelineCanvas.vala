@@ -15,12 +15,6 @@ class PipelineCanvas : Canvas
         integer_layout = true;
     }
 
-    public static void place_on_grid(CanvasItem item, double move_x, double move_y)
-    {
-        stdout.printf("(%f, %f) -> (%f, %f)\n", move_x, move_y, place_coord_on_grid(move_x), place_coord_on_grid(move_y)    );
-        item.translate(place_coord_on_grid(move_x), place_coord_on_grid(move_y));
-    }
-
     public static double place_coord_on_grid(double coord)
     {
         int quo;
