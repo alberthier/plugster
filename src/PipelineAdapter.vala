@@ -37,8 +37,8 @@ class PipelineAdapter : AbstractElementAdapter
             element_numbers.insert(factory_name, n);
             Element elt = ElementFactory.make(factory_name, "%s-%d".printf(factory_name, n));
             ElementData data = new ElementData(elt);
-            data.x = x;
-            data.y = y;
+            data.x = (int) (((double) x) + PipelineCanvas.place_coord_on_grid((double) x));
+            data.y = (int) (((double) y) + PipelineCanvas.place_coord_on_grid((double) y));
             get_pipeline().add(elt);
             Selection selection = data.get_selection();
             selection.select(elt);

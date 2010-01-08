@@ -8,6 +8,8 @@ class ElementAdapter : AbstractElementAdapter
 {
     private double drag_x;
     private double drag_y;
+    private double global_dx;
+    private double global_dy;
 
     CanvasRect background_rect;
     CanvasPath selection_indicator;
@@ -126,6 +128,12 @@ class ElementAdapter : AbstractElementAdapter
             "radius_y", DOUBLE_PADDING);
         /////////////////////////////////////////
 
+        double delta_x = PipelineCanvas.place_coord_on_grid(element_x);
+        double delta_y = PipelineCanvas.place_coord_on_grid(element_y);
+        canvas_item.translate(delta_x, delta_y);
+        element_data.x = (int) Math.roundf((float)(element_x + delta_x));
+        element_data.y = (int) Math.roundf((float)(element_y + delta_y));
+
         update_selection_indicator();
     }
 
@@ -148,16 +156,27 @@ class ElementAdapter : AbstractElementAdapter
             canvas_item.motion_notify_event += on_drag_move;
             drag_x = event.x_root;
             drag_y = event.y_root;
+            global_dx = 0.0;
+            global_dy = 0.0;
         }
         return false;
     }
 
     private bool on_end_drag(CanvasItem target, Gdk.EventButton event)
     {
+        ElementData element_data = get_element_data();
         canvas_item.button_release_event -= on_end_drag;
         canvas_item.motion_notify_event -= on_drag_move;
+        double dx = PipelineCanvas.place_coord_on_grid(global_dx);
+        double dy = PipelineCanvas.place_coord_on_grid(global_dy);
+        canvas_item.translate(dx, dy);
+        element_data.x = (int) Math.roundf((float) (global_dx + dx));
+        element_data.y = (int) Math.roundf((float) (global_dy + dy));
         drag_x = 0.0;
         drag_y = 0.0;
+        global_dx = 0.0;
+        global_dy = 0.0;
+
         return false;
     }
 
@@ -169,6 +188,8 @@ class ElementAdapter : AbstractElementAdapter
         canvas_item.translate(dx, dy);
         drag_x = event.x_root;
         drag_y = event.y_root;
+        global_dx += dx;
+        global_dy += dy;
         return false;
     }
 
