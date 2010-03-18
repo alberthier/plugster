@@ -40,10 +40,15 @@ class PadAdapter(AbstractAdapter):
 
         tooltip = "<b>Capabilities</b>"
         for structure in self.gst_object.get_caps():
-            cap = structure.to_string()
-            if cap[-1] == ";":
-                cap = cap[:-1]
-            tooltip += "\n\t- " + cap
+            tooltip += u"\n    \u2022 " + structure.get_name()
+            i = 0
+            while i < structure.n_fields():
+                name = structure.nth_field_name(i)
+                val = self._get_structure_value_string(structure[name])
+                tooltip += u"\n        \u2022 {0} = {1}".format(name, val)
+                i += 1
+
+        print tooltip
         self.set_property('tooltip', tooltip)
         self.background.set_property('tooltip', tooltip)
 
@@ -78,3 +83,25 @@ class PadAdapter(AbstractAdapter):
             return style.bg[gtk.STATE_NORMAL]
 
 
+    def _get_structure_value_string(self, value):
+        if isinstance(value, gst.Fourcc):
+            return value.fourcc
+        elif isinstance(value, gst.IntRange) or isinstance(value, gst.DoubleRange):
+            return "[ {0}, {1} ]".format(value.low, value.high)
+        elif isinstance(value, gst.FractionRange):
+            return "[ {0}/{1}, {2}/{3} ]".format(value.low.num, value.low.denom, value.high.num, value.high.denom)
+        elif isinstance(value, gst.Fraction):
+            return "[ {0}/{1} ]".format(value.num, value.denom)
+        elif isinstance(value, list):
+            val_str = "{ "
+            first = True
+            for v in value:
+                if first:
+                    first = False
+                else:
+                    val_str += ", "
+                val_str += self._get_structure_value_string(v)
+            val_str += " }"
+            return val_str
+        else:
+            return str(value)
