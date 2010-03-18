@@ -48,7 +48,6 @@ class PadAdapter(AbstractAdapter):
                 tooltip += u"\n        \u2022 {0} = {1}".format(name, val)
                 i += 1
 
-        print tooltip
         self.set_property('tooltip', tooltip)
         self.background.set_property('tooltip', tooltip)
 
