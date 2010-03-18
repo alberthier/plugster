@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+import sys
+import os
+import pygtk
+pygtk.require("2.0")
+import pygst
+pygst.require("0.10")
+import glib
+import gtk
+
+
+def get_plugster_path():
+    bindir = os.path.dirname(os.path.realpath(sys.argv[0]))
+    return os.path.dirname(bindir)
+
+
+def start(plugster_path):
+    from plugster.MainWindowController import MainWindowController
+    main_controller = MainWindowController(plugster_path)
+
+
+if __name__ == "__main__":
+    plugster_path = get_plugster_path()
+    sys.path.append(os.path.join(plugster_path, "lib"))
+    glib.idle_add(start, plugster_path)
+    gtk.main()
