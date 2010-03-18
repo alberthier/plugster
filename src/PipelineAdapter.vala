@@ -13,7 +13,7 @@ class PipelineAdapter : AbstractElementAdapter
     public PipelineAdapter(Pipeline pipeline, Canvas canvas)
     {
         base(pipeline);
-        element_numbers = new HashTable<string, int>.full(GLib.str_hash, GLib.str_equal, release_hash_items, null);
+        element_numbers = new HashTable<string, int>.full(GLib.str_hash, GLib.str_equal, GLib.free, null);
         canvas_item = CanvasGroup.create(canvas.get_root_item());
         elements_layer = CanvasGroup.create(canvas_item);
         links_layer = CanvasGroup.create(canvas_item);
@@ -23,14 +23,31 @@ class PipelineAdapter : AbstractElementAdapter
         canvas.button_press_event += on_button_pressed;
     }
 
+    ~PipelineAdapter()
+    {
+        elements_layer.remove();
+        links_layer.remove();
+    }
+
     public Pipeline get_pipeline()
     {
         return (Pipeline) gst_object;
     }
 
+    public static PipelineAdapter get_pipeline_adapter(Pipeline pipeline)
+    {
+        return (PipelineAdapter) AbstractElementAdapter.get_abstract_element_adapter(pipeline);
+    }
+
+    public CanvasItem get_links_layer()
+    {
+        return links_layer;
+    }
+
     private void create_new_element(Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time)
     {
-        if (selection_data.type == Gdk.Atom.intern("application/x-plugster-element-factory", true)) {
+        Gdk.Atom plugster_atom = Gdk.Atom.intern("application/x-plugster-element-factory", true);
+        if (selection_data.type == plugster_atom) {
             string factory_name = (string) selection_data.data;
             Gtk.drag_finish(context, true, false, time);
             int n = element_numbers.lookup(factory_name) + 1;
@@ -60,12 +77,6 @@ class PipelineAdapter : AbstractElementAdapter
         }
         return false;
     }
-
-    private static void release_hash_items(void* data)
-    {
-        free(data);
-    }
 }
 
 }
-

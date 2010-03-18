@@ -5,7 +5,7 @@ namespace Plugster
 
 class AbstractAdapter : GLib.Object
 {
-    protected weak CanvasItem canvas_item { get; set; }
+    public CanvasItem canvas_item { get; set; }
     protected weak Gst.Object gst_object { get; set; }
     public static const double BASE_PADDING = 5.0; // TODO: get this from the theme
     public static const double DOUBLE_PADDING = BASE_PADDING * 2.0; // TODO: get this from the theme
@@ -20,6 +20,11 @@ class AbstractAdapter : GLib.Object
     public static AbstractAdapter get_adapter(Gst.Object object)
     {
         return (AbstractAdapter) object.get_qdata(QUARK);
+    }
+
+    public static AbstractAdapter? get_adapter_from_item(CanvasItem item)
+    {
+        return (AbstractAdapter) item.get_qdata(QUARK);
     }
 }
 

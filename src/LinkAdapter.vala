@@ -1,53 +1,29 @@
+using Goo;
+
 namespace Plugster
 {
 
 class LinkAdapter : GLib.Object
 {
-    private weak PadAdapter? m_src_pad_adapter;
-    private weak PadAdapter? m_dst_pad_adapter;
-    public weak PadAdapter? src_pad_adapter
-    {
-        get { return m_src_pad_adapter; }
-        set
-        {
-            if (m_dst_pad_adapter == null && m_src_pad_adapter == null && value != null) {
-                ref();
-            }
-            m_src_pad_adapter = value;
-            m_src_pad_adapter.weak_ref(on_src_deleted, this);
-        }
-    }
-    public weak PadAdapter? dst_pad_adapter
-    {
-        get { return m_dst_pad_adapter; }
-        set
-        {
-            if (m_src_pad_adapter == null && m_dst_pad_adapter == null && value != null) {
-                ref();
-            }
-            m_dst_pad_adapter = value;
-            m_dst_pad_adapter.weak_ref(on_dst_deleted, this);
-        }
-    }
+    public weak PadAdapter? src_pad_adapter { get; set; }
+    public weak PadAdapter? dst_pad_adapter { get; set; }
 
     public LinkAdapter()
     {
     }
 
-    private static void on_src_deleted(void* self, Object deleted)
+    public bool on_drag_move(CanvasItem target, Gdk.EventMotion event)
     {
-        LinkAdapter* adapter = (LinkAdapter*) (self);
-        if (adapter->m_dst_pad_adapter != null) {
-           adapter->m_dst_pad_adapter.link_adapter = null;
-        }
+        return false;
     }
 
-    private static void on_dst_deleted(void* self, Object deleted)
+    public bool on_end_drag(CanvasItem target, Gdk.EventButton event)
     {
-        LinkAdapter* adapter = (LinkAdapter*) (self);
-        if (adapter->m_src_pad_adapter != null) {
-           adapter->m_src_pad_adapter.link_adapter = null;
-        }
+        src_pad_adapter.canvas_item.motion_notify_event -= on_drag_move;
+        src_pad_adapter.canvas_item.button_release_event -= on_end_drag;
+        dst_pad_adapter.canvas_item.motion_notify_event -= on_drag_move;
+        dst_pad_adapter.canvas_item.button_release_event -= on_end_drag;
+        return false;
     }
 }
 

@@ -103,7 +103,8 @@ class PropertyEditorModel : GLib.Object, TreeModel
             weak ParamSpecEnum param_spec_enum = (ParamSpecEnum) param_spec;
             weak EnumClass enum_class = param_spec_enum.enum_class;
             for (int i = 0; i < enum_class.n_values;  ++i) {
-                EnumValue* enum_val = &(enum_class.values[i]);
+                EnumValue* enum_val = enum_class.values;
+                enum_val += i;
                 if (new_text == enum_val->value_name) {
                     new_value.set_enum(i);
                     break;

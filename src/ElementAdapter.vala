@@ -11,9 +11,9 @@ class ElementAdapter : AbstractElementAdapter
     private double global_dx;
     private double global_dy;
 
-    CanvasRect background_rect;
-    CanvasPath selection_indicator;
-    CanvasText title;
+    private weak CanvasRect background_rect;
+    private weak CanvasPath selection_indicator;
+    private weak CanvasText title;
 
     public ElementAdapter(Element elt, CanvasItem parent)
     {
@@ -44,7 +44,7 @@ class ElementAdapter : AbstractElementAdapter
             Gtk.AnchorType.NORTH_WEST,
             "fill-color", style.fg[Gtk.StateType.NORMAL].to_string(),
             "font-desc", font_desc);
-        title.get_bounds(bounds);
+        title.get_bounds(out bounds);
         double title_width = bounds.x2 - bounds.x1;
         double title_height = bounds.y2 - bounds.y1;
         element_x -= title_width / 2.0 + DOUBLE_PADDING;
@@ -57,10 +57,10 @@ class ElementAdapter : AbstractElementAdapter
         double pads_max_height = 0.0;
         int has_sink_pads = 0;
         int has_src_pads = 0;
-        var pad_adapters = new GLib.List<PadAdapter>();
+        GLib.List<PadAdapter> pad_adapters = null;
         foreach (Pad pad in element_data.element.pads) {
             var pad_adapter = new PadAdapter(pad);
-            pad_adapters.append(pad_adapter);
+            pad_adapters.prepend(pad_adapter);
             pads_max_width = double.max(pads_max_width, pad_adapter.get_width());
             pads_max_height = double.max(pads_max_height, pad_adapter.get_height());
             switch(pad.get_direction())

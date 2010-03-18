@@ -13,7 +13,6 @@ namespace Plugster
         public Selection(Pipeline pipe)
         {
             pipeline = pipe;
-            selected_elements = new GLib.List<weak Element>();
             pipeline.set_qdata_full(QUARK, this.ref(), unref);
             pipeline.element_removed += remove;
         }
@@ -26,7 +25,7 @@ namespace Plugster
         public void add(Element elt)
         {
             if (!contains(elt)) {
-                selected_elements.append(elt);
+                selected_elements.prepend(elt);
                 ElementData.get_element_data(elt).selected_state_changed();
                 selection_changed();
             }
@@ -44,7 +43,7 @@ namespace Plugster
         public void clear()
         {
             GLib.List<weak Element> previously_selected_elements = (owned) selected_elements;
-            selected_elements = new GLib.List<weak Element>();
+            selected_elements = null;
             foreach (Element elt in previously_selected_elements) {
                 ElementData.get_element_data(elt).selected_state_changed();
             }

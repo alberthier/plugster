@@ -213,7 +213,8 @@ class PropertyEditorCellRenderer : CellRenderer
 
         for (uint i = 0; i < enum_class.n_values;  ++i) {
             store.append(out iter);
-            EnumValue* enum_val = &(enum_class.values[i]);
+            EnumValue* enum_val = enum_class.values;
+            enum_val += i;
             store.set(iter, 0, enum_val->value_name, -1);
         }
         return renderer;
@@ -231,7 +232,8 @@ class PropertyEditorCellRenderer : CellRenderer
         }
 
         if (index >= 0 && index < enum_class.n_values) {
-            EnumValue* enum_val = &(enum_class.values[index]);
+            EnumValue* enum_val = enum_class.values;
+            enum_val += index;
             renderer.text = enum_val->value_name;
         } else {
             renderer.text = "---";

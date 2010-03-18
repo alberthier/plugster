@@ -90,7 +90,7 @@ class ElementData : GLib.Object
 
     private void save_coords(Xml.Node* parent)
     {
-        Xml.Ns* xml_namespace = Xml.Ns.create(parent->doc->get_root_element(), XML_HREF, XML_NS);
+        Xml.Ns* xml_namespace = new Xml.Ns(parent->doc->get_root_element(), XML_HREF, XML_NS);
 
         Xml.Node* coords_node = new Xml.Node(xml_namespace, XML_COORDS_TAG);
         parent->add_child(coords_node);

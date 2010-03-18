@@ -8,7 +8,7 @@ class PipelineCanvas : Canvas
 {
     public static const int GRID_SIZE = 20;
 
-    construct
+    public PipelineCanvas()
     {
         Gtk.drag_dest_set(this, Gtk.DestDefaults.ALL, ElementFactoriesWidget.drag_targets, Gdk.DragAction.COPY);
         automatic_bounds = true;

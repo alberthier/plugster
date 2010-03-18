@@ -19,6 +19,11 @@ class AbstractElementAdapter : AbstractAdapter
     {
         return (Element) gst_object;
     }
+
+    public static AbstractElementAdapter get_abstract_element_adapter(Element elt)
+    {
+        return (AbstractElementAdapter) AbstractAdapter.get_adapter(elt);
+    }
 }
 
 }
