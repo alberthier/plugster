@@ -1,9 +1,0 @@
-1. Compile vapigen
-    git clone git://git.gnome.org/vala
-    ./autogen.sh
-    build gobject-introspection
-    build vapigen
-
-2. Regenerate vapigen
-    cd vapi
-    vapigen --library gstreamer-0.10 packages/gstreamer-0.10/gstreamer-0.10.gi packages/gstreamer-0.10/gstreamer-0.10-custom.vala

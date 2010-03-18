@@ -1,8 +1,0 @@
-=== TODO ===
-
-- Resolve ``(plugster:11050): GLib-GObject-WARNING **: invalid unclassed pointer in cast to `GtkObject'``
-  Happens when quiting the app with ``Alt+F4`` after adding one or more elements to the view.
-- Plugster.ElementAdapter colors from theme
-- Plugster.ElementAdapter.margin from theme
-- Plugster.ElementAdapter and Plugster.PadAdapter font from theme
-
