@@ -38,6 +38,16 @@ class PadAdapter(AbstractAdapter):
             bounds = title.get_bounds()
             connector.translate(bounds.x2 - bounds.x1 + PadAdapter.CONNECTOR_RADIUS / 2 + AbstractAdapter.DOUBLE_PADDING, AbstractAdapter.font_height / 2)
 
+        tooltip = "<b>Capabilities</b>"
+        for structure in self.gst_object.get_caps():
+            cap = structure.to_string()
+            if cap[-1] == ";":
+                cap = cap[:-1]
+            tooltip += "\n\t- " + cap
+        self.set_property('tooltip', tooltip)
+        self.background.set_property('tooltip', tooltip)
+
+
 
     def set_background_params(self, x, y, width):
         if self.gst_object.get_direction() == gst.PAD_SINK:
