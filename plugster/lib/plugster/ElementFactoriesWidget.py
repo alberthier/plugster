@@ -10,13 +10,13 @@ class ElementFactoriesWidget(gtk.TreeView):
     def __init__(self):
         gtk.TreeView.__init__(self)
 
-        self.set_property('width_request', 230)
+        self.props.width_request = 230
 
         column = gtk.TreeViewColumn()
         column.set_title("Element")
 
         icon_renderer = gtk.CellRendererPixbuf()
-        icon_renderer.set_property('icon-name', 'gtk-open')
+        icon_renderer.props.icon_name = 'gtk-open'
         column.pack_start(icon_renderer, False)
         column.add_attribute(icon_renderer, 'icon-name', ElementFactoriesModel.ICON)
 

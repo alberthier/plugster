@@ -14,8 +14,8 @@ class PipelineCanvas(goocanvas.Canvas):
                                         automatic_bounds = True,
                                         integer_layout = True)
         self.drag_dest_set(gtk.DEST_DEFAULT_ALL, ElementFactoriesWidget.DRAG_TARGETS, gtk.gdk.ACTION_COPY)
-        self.set_property('automatic-bounds', True)
-        self.set_property('integer-layout', True)
+        self.props.automatic_bounds = True
+        self.props.integer_layout = True
 
     @staticmethod
     def place_coord_on_grid(coord):

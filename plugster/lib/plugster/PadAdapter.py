@@ -30,11 +30,11 @@ class PadAdapter(AbstractAdapter):
                                       stroke_color = style.dark[gtk.STATE_NORMAL])
 
         if self.gst_object.get_direction() == gst.PAD_SINK:
-            self.background.set_property('fill-color', PadAdapter.SINK_COLOR)
+            self.background.props.fill_color = PadAdapter.SINK_COLOR
             title.translate(PadAdapter.CONNECTOR_RADIUS / 2 + AbstractAdapter.DOUBLE_PADDING, 0.0)
             connector.translate(0.0, AbstractAdapter.font_height / 2)
         else:
-            self.background.set_property('fill-color', PadAdapter.SRC_COLOR)
+            self.background.props.fill_color = PadAdapter.SRC_COLOR
             bounds = title.get_bounds()
             connector.translate(bounds.x2 - bounds.x1 + PadAdapter.CONNECTOR_RADIUS / 2 + AbstractAdapter.DOUBLE_PADDING, AbstractAdapter.font_height / 2)
 
@@ -48,8 +48,8 @@ class PadAdapter(AbstractAdapter):
                 tooltip += u"\n        \u2022 {0} = {1}".format(name, val)
                 i += 1
 
-        self.set_property('tooltip', tooltip)
-        self.background.set_property('tooltip', tooltip)
+        self.props.tooltip = tooltip
+        self.background.props.tooltip = tooltip
 
 
 
@@ -66,7 +66,7 @@ class PadAdapter(AbstractAdapter):
                                width = width - AbstractAdapter.BASE_PADDING,
                                height = AbstractAdapter.font_height + AbstractAdapter.DOUBLE_PADDING,
                                small_height = AbstractAdapter.font_height)
-        self.background.set_property('data', path)
+        self.background.props.data = path
 
 
     def get_base_width(self):

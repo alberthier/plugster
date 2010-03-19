@@ -13,7 +13,7 @@ class ElementAdapter(AbstractElementAdapter):
         AbstractElementAdapter.__init__(self, gst_element, layer)
 
         factory = self.gst_object.get_factory()
-        self.set_property('tooltip', "<b>{0}</b>\n{1}".format(factory.get_longname(), factory.get_description()))
+        self.props.tooltip = "<b>{0}</b>\n{1}".format(factory.get_longname(), factory.get_description())
 
         self.gst_object.connect('pad-added', self._on_pad_added)
         self.gst_object.connect('no-more-pads', self._relayout)
@@ -22,7 +22,7 @@ class ElementAdapter(AbstractElementAdapter):
         data = self.gst_object.plugster_data
         data.connect('selected-state-changed', self._update_title_background)
         style = self.get_canvas().get_style()
-        font_desc = self.get_property('font-desc')
+        font_desc = self.props.font_desc
         font_desc.set_weight(pango.WEIGHT_BOLD)
 
         self.background_rect = goocanvas.Rect(parent = self,
@@ -59,7 +59,7 @@ class ElementAdapter(AbstractElementAdapter):
 
         y_src = AbstractAdapter.DOUBLE_PADDING * 2 + AbstractAdapter.font_height
         y_sink = y_src
-        self.title.set_property('text', self.gst_object.get_name())
+        self.title.props.text = self.gst_object.get_name()
 
         bounds = self.title.get_bounds()
         title_width = bounds.x2 - bounds.x1
@@ -76,43 +76,43 @@ class ElementAdapter(AbstractElementAdapter):
             adapter.background.lower(self.bounding_rect)
             adapter_width = adapter.get_base_width()
             if pad.get_direction() == gst.PAD_SINK:
-                adapter.set_property('x', AbstractAdapter.DOUBLE_PADDING)
-                adapter.set_property('y', y_sink + AbstractAdapter.BASE_PADDING)
+                adapter.props.x = AbstractAdapter.DOUBLE_PADDING
+                adapter.props.y = y_sink + AbstractAdapter.BASE_PADDING
                 adapter.set_background_params(0, y_sink, pad_width + 2 * AbstractAdapter.DOUBLE_PADDING)
                 y_sink += AbstractAdapter.font_height + 2 * AbstractAdapter.DOUBLE_PADDING
             else:
-                adapter.set_property('x', global_width - AbstractAdapter.DOUBLE_PADDING - adapter_width + PadAdapter.CONNECTOR_RADIUS)
-                adapter.set_property('y', y_src + AbstractAdapter.BASE_PADDING)
+                adapter.props.x = global_width - AbstractAdapter.DOUBLE_PADDING - adapter_width + PadAdapter.CONNECTOR_RADIUS
+                adapter.props.y = y_src + AbstractAdapter.BASE_PADDING
                 adapter.set_background_params(global_width - pad_width -2 * AbstractAdapter.DOUBLE_PADDING, y_src, pad_width + 2 * AbstractAdapter.DOUBLE_PADDING)
                 y_src += AbstractAdapter.font_height + 2 * AbstractAdapter.DOUBLE_PADDING
 
         y_src += AbstractAdapter.BASE_PADDING
         y_sink += AbstractAdapter.BASE_PADDING
 
-        self.title.set_property('width', global_width)
+        self.title.props.width = global_width
         path = "m {arc_radius} 0 h {small_width} a {arc_radius} {arc_radius} 0 0 1 {arc_radius} {arc_radius} v {height} h -{width} v -{height} a {arc_radius} {arc_radius} 0 0 1 {arc_radius} -{arc_radius}".format(
                     arc_radius = AbstractAdapter.DOUBLE_PADDING,
                     small_width = global_width - 2 * AbstractAdapter.DOUBLE_PADDING,
                     width = global_width,
                     height = title_height)
-        self.title_background.set_property('data', path)
+        self.title_background.props.data = path
         self._update_title_background(self.gst_object.plugster_data)
 
-        self.background_rect.set_property('width', global_width)
-        self.background_rect.set_property('height', max(y_src, y_sink))
+        self.background_rect.props.width = global_width
+        self.background_rect.props.height = max(y_src, y_sink)
 
-        self.bounding_rect.set_property('width', global_width)
-        self.bounding_rect.set_property('height', max(y_src, y_sink))
+        self.bounding_rect.props.width = global_width
+        self.bounding_rect.props.height = max(y_src, y_sink)
 
 
     def _update_title_background(self, element_data):
         style = self.get_canvas().get_style()
         if self.is_selected():
-            self.title.set_property('fill-color', style.fg[gtk.STATE_SELECTED])
-            self.title_background.set_property('fill-color', style.bg[gtk.STATE_SELECTED])
+            self.title.props.fill_color = style.fg[gtk.STATE_SELECTED]
+            self.title_background.props.fill_color = style.bg[gtk.STATE_SELECTED]
         else:
-            self.title.set_property('fill-color', style.fg[gtk.STATE_NORMAL])
-            self.title_background.set_property('fill-color', style.dark[gtk.STATE_NORMAL])
+            self.title.props.fill_color = style.fg[gtk.STATE_NORMAL]
+            self.title_background.props.fill_color = style.dark[gtk.STATE_NORMAL]
 
 
     def _on_button_pressed(self, widget, event):
