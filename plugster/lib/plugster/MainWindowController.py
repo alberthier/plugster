@@ -6,6 +6,7 @@ import gtk
 from ElementFactoriesWidget import *
 from PipelineController import *
 from PipelineCanvas import *
+from PropertyEditorController import *
 
 class MainWindowController(gobject.GObject):
 
@@ -30,9 +31,9 @@ class MainWindowController(gobject.GObject):
                 pipeline_canvas_scrollwindow.add(canvas)
 
                 self.pipeline_controller = PipelineController(mainwindow, canvas)
-#                self.property_editor_controller = PropertyEditorController()
-#                self.property_editor_scrollwindow.add(property_editor_controller.tree_view)
-#                self.pipeline_controller.connect_object("pipeline_changed",  PropertyEditorController.on_pipeline_changed, property_editor_controller)
+                self.property_editor_controller = PropertyEditorController()
+                property_editor_scrollwindow.add(self.property_editor_controller.tree_view)
+                self.pipeline_controller.connect('pipeline-changed', self.property_editor_controller.on_pipeline_changed)
 
                 action = builder.get_object("action_new")
                 action.connect_object('activate', PipelineController.reset, self.pipeline_controller)

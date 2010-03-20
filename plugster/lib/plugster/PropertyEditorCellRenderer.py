@@ -1,3 +1,4 @@
+import gobject
 import gtk
 
 class PropertyEditorCellRenderer(gtk.CellRenderer):
@@ -8,12 +9,13 @@ class PropertyEditorCellRenderer(gtk.CellRenderer):
     }
 
     __gproperties__ = {
-        'property-param-spec' : (gobject.TYPE_PARAM, "Property ParamSpec", "The ParamSpec of the property to edit", None, gobject.PARAM_READWRITE),
-        'property-value'      : (gobject.TYPE_NONE, "Property value", "The current value of the property to edit", None, gobject.PARAM_READWRITE),
+        'property-param-spec' : (gobject.TYPE_PARAM, "Property ParamSpec", "The ParamSpec of the property to edit", gobject.PARAM_READWRITE),
+        'property-value'      : (gobject.TYPE_PYOBJECT, "Property value", "The current value of the property to edit", gobject.PARAM_READWRITE),
     }
 
 
     def __init__(self):
+        gtk.CellRenderer.__init__(self)
         self.reset()
 
 
@@ -41,9 +43,9 @@ class PropertyEditorCellRenderer(gtk.CellRenderer):
     def _get_current_renderer(self, widget):
         pspec = self.props.property_param_spec
         renderer = None
-        if self._renderers.has_key(pspec):
+        if pspec in self._renderers:
             renderer = self._renderers[pspec]
-        editable = pspec.flags & gobject.PARAM_WRITABLE && !(pspec.flags & gobject.PARAM_CONSTRUCT_ONLY)
+        editable = pspec.flags & gobject.PARAM_WRITABLE and not pspec.flags & gobject.PARAM_CONSTRUCT_ONLY
 
         if pspec.value_type == gobject.TYPE_CHAR or \
            pspec.value_type == gobject.TYPE_UCHAR or \
@@ -137,7 +139,7 @@ class PropertyEditorCellRenderer(gtk.CellRenderer):
 
     def _update_renderer_combo_value(self, renderer, enum_class):
         val = self.props.property_value
-        if isinstance(val, int) and val >= 0 and val < len(enum_class.__enum_values__)
+        if isinstance(val, int) and val >= 0 and val < len(enum_class.__enum_values__):
             renderer.props.active = val
         else:
             renderer.props.text = "---"

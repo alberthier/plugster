@@ -1,3 +1,4 @@
+import gobject
 import gtk
 
 class PropertyEditorModel(gobject.GObject, gtk.TreeModel):
@@ -9,13 +10,14 @@ class PropertyEditorModel(gobject.GObject, gtk.TreeModel):
     NB_COLUMNS                 = 3
 
     def __init__(self):
+        gobject.GObject.__init__(self)
         self.objects = []
         self.param_specs = []
 
 
     def set_objects(self, objects):
         for index, param_spec in enumerate(reversed(self.param_specs)):
-            self.emit('row-deleted', ( index, ))
+            self.row_deleted(( index, ))
 
         self.objects = objects
         first = True
@@ -29,10 +31,10 @@ class PropertyEditorModel(gobject.GObject, gtk.TreeModel):
                     if not pspec in self.param_specs:
                         self.param_specs.remove(pspec)
 
-        self.param_specs.sort(key = gobject.GParamSpec.get_name)
+        self.param_specs.sort(lambda a, b: a.nick < b.nick)
         for index, pspec in enumerate(self.param_specs):
-            path = [ index ]
-            self.emit('row-inserted', path, self.get_iter(path))
+            path = ( index, )
+            self.row_inserted(path, self.get_iter(path))
 
 
     def set_property_value(self, path, new_text):
@@ -64,7 +66,7 @@ class PropertyEditorModel(gobject.GObject, gtk.TreeModel):
         for obj in self.objects:
             obj.set_property(pspec.name, val)
 
-        self.emit('row-changed', path, iter)
+        self.row_changed(path, iter)
 
 
     def get_column_type(self, index):
@@ -73,7 +75,7 @@ class PropertyEditorModel(gobject.GObject, gtk.TreeModel):
         elif index == PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN:
             return gobject.TYPE_PARAM
         elif index == PropertyEditorModel.PROPERTY_VALUE_COLUMN:
-            return gobject.TYPE_NONE
+            return gobject.TYPE_PYOBJECT
         else:
             return gobject.TYPE_INVALID
 
