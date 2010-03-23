@@ -44,7 +44,7 @@ class PipelineAdapter(AbstractElementAdapter):
             else:
                 n = 1
             PipelineAdapter.element_numbers[factory_name] = n
-            elt = gst.element_factory_make(factory_name, "{0}-{1}".format(factory_name, n))
+            elt = gst.element_factory_make(factory_name, "{0}{1}".format(factory_name, n))
             data = ElementData(elt)
             data.x = x + PipelineCanvas.place_coord_on_grid(x)
             data.y = y + PipelineCanvas.place_coord_on_grid(y)
