@@ -4,10 +4,10 @@ import gst
 
 class ElementFactoriesModel(gtk.TreeStore):
 
-    NAME                    = 0
-    ELEMENT_FACTORY_POINTER = 1
-    ICON                    = 2
-    NB_COLUMNS              = 3
+    NAME            = 0
+    ELEMENT_FACTORY = 1
+    ICON            = 2
+    NB_COLUMNS      = 3
 
     def __init__(self):
         gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gst.ElementFactory, gobject.TYPE_STRING)
@@ -39,8 +39,8 @@ class ElementFactoriesModel(gtk.TreeStore):
 
 
     def _compare_items(self, tree_model, iter1, iter2, user_data):
-        (name1, factory1) = self.get(iter1, ElementFactoriesModel.NAME, ElementFactoriesModel.ELEMENT_FACTORY_POINTER)
-        (name2, factory2) = self.get(iter2, ElementFactoriesModel.NAME, ElementFactoriesModel.ELEMENT_FACTORY_POINTER)
+        (name1, factory1) = self.get(iter1, ElementFactoriesModel.NAME, ElementFactoriesModel.ELEMENT_FACTORY)
+        (name2, factory2) = self.get(iter2, ElementFactoriesModel.NAME, ElementFactoriesModel.ELEMENT_FACTORY)
 
         if factory1:
             if factory2:
