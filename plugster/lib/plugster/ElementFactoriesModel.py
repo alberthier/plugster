@@ -22,6 +22,7 @@ class ElementFactoriesModel(gtk.TreeStore):
     def _get_parent_iter(self, sections):
         parent = None
         for section in sections:
+            section = section.strip()
             current = self.iter_children(parent)
             while current:
                 text = self.get(current, ElementFactoriesModel.NAME)[0]
