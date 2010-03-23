@@ -11,7 +11,7 @@ class PropertyEditorController(gobject.GObject):
 
         self.selection = None
         self.tree_view = gtk.TreeView()
-        self.tree_view.model = PropertyEditorModel()
+        self.tree_view.props.model = PropertyEditorModel()
         self.tree_view.props.rules_hint = True
 
         renderer = gtk.CellRendererText()
@@ -19,12 +19,12 @@ class PropertyEditorController(gobject.GObject):
                                     text = PropertyEditorModel.PROPERTY_NAME_COLUMN)
         self.tree_view.append_column(column)
 
-        renderer = PropertyEditorCellRenderer()
-        renderer.connect('edited', self.tree_view.model.set_property_value)
-        column = gtk.TreeViewColumn("Value", renderer,
-                                    property_param_spec = PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN,
-                                    property_value = PropertyEditorModel.PROPERTY_VALUE_COLUMN)
-        self.tree_view.append_column(column)
+        ##renderer = PropertyEditorCellRenderer()
+        ##renderer.connect('edited', self.tree_view.props.model.set_property_value)
+        ##column = gtk.TreeViewColumn("Value", renderer,
+                                    ##property_param_spec = PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN,
+                                    ##property_value = PropertyEditorModel.PROPERTY_VALUE_COLUMN)
+        ##self.tree_view.append_column(column)
 
 
     def on_pipeline_changed(self, pipeline_controller, new_pipeline):
@@ -34,4 +34,4 @@ class PropertyEditorController(gobject.GObject):
 
     def _on_selection_changed(self, selection):
         if selection:
-            self.tree_view.model.set_objects(selection.selected_elements)
+            self.tree_view.props.model.set_objects(selection.selected_elements)
