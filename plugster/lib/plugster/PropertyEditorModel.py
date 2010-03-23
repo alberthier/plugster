@@ -1,3 +1,4 @@
+import glib
 import gobject
 import gtk
 
@@ -7,7 +8,8 @@ class PropertyEditorModel(gtk.GenericTreeModel):
     PROPERTY_NAME_COLUMN       = 0
     PROPERTY_PARAM_SPEC_COLUMN = 1
     PROPERTY_VALUE_COLUMN      = 2
-    NB_COLUMNS                 = 3
+    TOOLTIP_COLUMN             = 3
+    NB_COLUMNS                 = 4
 
     def __init__(self):
         gtk.GenericTreeModel.__init__(self)
@@ -86,6 +88,8 @@ class PropertyEditorModel(gtk.GenericTreeModel):
             return gobject.TYPE_PARAM
         elif index == PropertyEditorModel.PROPERTY_VALUE_COLUMN:
             return gobject.TYPE_PYOBJECT
+        elif index == PropertyEditorModel.TOOLTIP_COLUMN:
+            return gobject.TYPE_STRING
         else:
             return gobject.TYPE_INVALID
 
@@ -94,7 +98,6 @@ class PropertyEditorModel(gtk.GenericTreeModel):
         if len(path) == 1 and path[0] < len(self.param_specs):
             return self.create_tree_iter(path[0])
         else:
-            ##raise ValueError("{path} is not a valid tree path".format(path = path))
             return None
 
 
@@ -107,11 +110,27 @@ class PropertyEditorModel(gtk.GenericTreeModel):
         if index >= 0 and index < len(self.param_specs):
             pspec = self.param_specs[index]
             if column == PropertyEditorModel.PROPERTY_NAME_COLUMN:
-                return pspec.name
+                if (len(pspec.nick) == 0):
+                    return pspec.name
+                else:
+                    return pspec.nick
             elif column == PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN:
                 return pspec
             elif column == PropertyEditorModel.PROPERTY_VALUE_COLUMN:
                 return self._get_objects_value(pspec.name)
+            elif column == PropertyEditorModel.TOOLTIP_COLUMN:
+                flags = ""
+                if pspec.flags & gobject.PARAM_READABLE:
+                    flags += "Readable"
+                if pspec.flags & gobject.PARAM_WRITABLE:
+                    if pspec.flags & gobject.PARAM_READABLE:
+                        flags += ", "
+                    flags += "Writable"
+                return "<b>{nick}</b> ({name})\n<b>Flags:</b> {flags}\n<b>Default value:</b> {defval}\n{desc}".format(nick = pspec.nick,
+                                                                                                                      name = pspec.name,
+                                                                                                                      flags = flags,
+                                                                                                                      defval = pspec.default_value,
+                                                                                                                      desc = glib.markup_escape_text(pspec.blurb))
         return None
 
 

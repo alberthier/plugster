@@ -1,3 +1,4 @@
+import glib
 import gtk
 import goocanvas
 
@@ -83,24 +84,25 @@ class PadAdapter(AbstractAdapter):
 
 
     def _get_structure_value_string(self, value):
+        result = None
         if isinstance(value, gst.Fourcc):
-            return value.fourcc
+            result = value.fourcc
         elif isinstance(value, gst.IntRange) or isinstance(value, gst.DoubleRange):
-            return "[ {0}, {1} ]".format(value.low, value.high)
+            result = "[ {0}, {1} ]".format(value.low, value.high)
         elif isinstance(value, gst.FractionRange):
-            return "[ {0}/{1}, {2}/{3} ]".format(value.low.num, value.low.denom, value.high.num, value.high.denom)
+            result = "[ {0}/{1}, {2}/{3} ]".format(value.low.num, value.low.denom, value.high.num, value.high.denom)
         elif isinstance(value, gst.Fraction):
-            return "[ {0}/{1} ]".format(value.num, value.denom)
+            result = "[ {0}/{1} ]".format(value.num, value.denom)
         elif isinstance(value, list):
-            val_str = "{ "
+            result = "{ "
             first = True
             for v in value:
                 if first:
                     first = False
                 else:
-                    val_str += ", "
-                val_str += self._get_structure_value_string(v)
-            val_str += " }"
-            return val_str
+                    result += ", "
+                result += self._get_structure_value_string(v)
+            result += " }"
         else:
-            return str(value)
+            result = str(value)
+        return glib.markup_escape_text(result)

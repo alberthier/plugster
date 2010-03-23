@@ -1,7 +1,7 @@
 import gobject
 import gtk
 
-class PropertyEditorCellRenderer(gtk.CellRenderer):
+class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
     __gsignals__ = {
         # edited signal: (path, new_value)
@@ -15,7 +15,7 @@ class PropertyEditorCellRenderer(gtk.CellRenderer):
 
 
     def __init__(self):
-        gtk.CellRenderer.__init__(self)
+        gtk.GenericCellRenderer.__init__(self)
         self.reset()
 
 
@@ -24,19 +24,19 @@ class PropertyEditorCellRenderer(gtk.CellRenderer):
         self._renderers = {}
 
 
-    def get_size(self, widget, cell_area = None):
+    def on_get_size(widget, cell_area):
         return self._get_current_renderer(widget).get_size(widget, cell_area)
 
 
-    def render(self, window, widget, background_area, cell_area, expose_area, flags):
+    def on_render(window, widget, background_area, cell_area, expose_area, flags):
         return self._get_current_renderer(widget).render(window, widget, background_area, cell_area, expose_area, flags)
 
 
-    def activate(self, event, widget, path, background_area, cell_area, flags):
+    def on_activate(event, widget, path, background_area, cell_area, flags):
         return self._get_current_renderer(widget).activate(event, widget, path, background_area, cell_area, flags)
 
 
-    def start_editing(self, event, widget, path, background_area, cell_area, flags):
+    def on_start_editing(event, widget, path, background_area, cell_area, flags):
         return self._get_current_renderer(widget).start_editing(event, widget, path, background_area, cell_area, flags)
 
 
