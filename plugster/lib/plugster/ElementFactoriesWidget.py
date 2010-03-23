@@ -1,5 +1,4 @@
 import gtk
-import gst
 
 from ElementFactoriesModel import *
 
@@ -12,8 +11,7 @@ class ElementFactoriesWidget(gtk.TreeView):
 
         self.props.width_request = 230
 
-        column = gtk.TreeViewColumn()
-        column.set_title("Element")
+        column = gtk.TreeViewColumn("Element")
 
         icon_renderer = gtk.CellRendererPixbuf()
         icon_renderer.props.icon_name = 'gtk-open'
