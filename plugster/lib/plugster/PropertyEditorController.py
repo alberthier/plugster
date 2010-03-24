@@ -21,12 +21,12 @@ class PropertyEditorController(gobject.GObject):
 
         self.tree_view.set_tooltip_column(PropertyEditorModel.TOOLTIP_COLUMN)
 
-        ##renderer = PropertyEditorCellRenderer()
-        ##renderer.connect('edited', self.tree_view.props.model.set_property_value)
-        ##column = gtk.TreeViewColumn("Value", renderer,
-                                    ##property_param_spec = PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN,
-                                    ##property_value = PropertyEditorModel.PROPERTY_VALUE_COLUMN)
-        ##self.tree_view.append_column(column)
+        renderer = PropertyEditorCellRenderer()
+        renderer.connect('edited', self.tree_view.props.model.set_property_value)
+        column = gtk.TreeViewColumn("Value", renderer,
+                                    property_param_spec = PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN,
+                                    property_value = PropertyEditorModel.PROPERTY_VALUE_COLUMN)
+        self.tree_view.append_column(column)
 
 
     def on_pipeline_changed(self, pipeline_controller, new_pipeline):

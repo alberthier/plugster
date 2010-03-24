@@ -57,7 +57,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
         elif pspec.value_type == gobject.TYPE_FLOAT or \
            pspec.value_type == gobject.TYPE_DOUBLE:
             val = float(new_text)
-        elif pspec.value_type == gobject.TYPE_BOOL:
+        elif pspec.value_type == gobject.TYPE_BOOLEAN:
             val = new_text == "Yes"
         elif pspec.value_type == gobject.TYPE_ENUM:
             for enum_item in pspec.enum_class.__enum_values__:
@@ -85,7 +85,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
         if index == PropertyEditorModel.PROPERTY_NAME_COLUMN:
             return gobject.TYPE_STRING
         elif index == PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN:
-            return gobject.TYPE_PARAM
+            return gobject.TYPE_PYOBJECT
         elif index == PropertyEditorModel.PROPERTY_VALUE_COLUMN:
             return gobject.TYPE_PYOBJECT
         elif index == PropertyEditorModel.TOOLTIP_COLUMN:
@@ -117,7 +117,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
             elif column == PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN:
                 return pspec
             elif column == PropertyEditorModel.PROPERTY_VALUE_COLUMN:
-                return self._get_objects_value(pspec.name)
+                return self._get_objects_value(pspec)
             elif column == PropertyEditorModel.TOOLTIP_COLUMN:
                 flags = ""
                 if pspec.flags & gobject.PARAM_READABLE:

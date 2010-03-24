@@ -9,7 +9,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
     }
 
     __gproperties__ = {
-        'property-param-spec' : (gobject.TYPE_PARAM, "Property ParamSpec", "The ParamSpec of the property to edit", gobject.PARAM_READWRITE),
+        'property-param-spec' : (gobject.TYPE_PYOBJECT, "Property ParamSpec", "The ParamSpec of the property to edit", gobject.PARAM_READWRITE),
         'property-value'      : (gobject.TYPE_PYOBJECT, "Property value", "The current value of the property to edit", gobject.PARAM_READWRITE),
     }
 
@@ -19,24 +19,44 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
         self.reset()
 
 
+    def do_get_property(self, property):
+        if property.name == 'property-param-spec':
+            return self._property_param_spec
+        elif property.name == 'property-value':
+            return self._property_value
+        else:
+            raise AttributeError("unknown property {0}".format(property.name))
+
+
+    def do_set_property(self, property, value):
+        if property.name == 'property-param-spec':
+            self._property_param_spec = value
+        elif property.name == 'property-value':
+            self._property_value = value
+        else:
+            raise AttributeError("unknown property {0}".format(property.name))
+
+
     def reset(self):
         self.props.mode = gtk.CELL_RENDERER_MODE_EDITABLE
+        self._property_param_spec = None
+        self._property_value = None
         self._renderers = {}
 
 
-    def on_get_size(widget, cell_area):
+    def on_get_size(self, widget, cell_area):
         return self._get_current_renderer(widget).get_size(widget, cell_area)
 
 
-    def on_render(window, widget, background_area, cell_area, expose_area, flags):
+    def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
         return self._get_current_renderer(widget).render(window, widget, background_area, cell_area, expose_area, flags)
 
 
-    def on_activate(event, widget, path, background_area, cell_area, flags):
+    def on_activate(self, event, widget, path, background_area, cell_area, flags):
         return self._get_current_renderer(widget).activate(event, widget, path, background_area, cell_area, flags)
 
 
-    def on_start_editing(event, widget, path, background_area, cell_area, flags):
+    def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
         return self._get_current_renderer(widget).start_editing(event, widget, path, background_area, cell_area, flags)
 
 
@@ -58,9 +78,9 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
            pspec.value_type == gobject.TYPE_FLOAT or \
            pspec.value_type == gobject.TYPE_DOUBLE:
             if renderer == None:
-                renderer = self._create_renderer_spin(widget, 0, editable, spec.minimum, spec.maximum)
+                renderer = self._create_renderer_spin(widget, 0, editable, pspec.minimum, pspec.maximum)
             self._update_renderer_spin_value(renderer)
-        elif pspec.value_type == gobject.TYPE_BOOL:
+        elif pspec.value_type == gobject.TYPE_BOOLEAN:
             if renderer == None:
                 renderer = self._create_renderer_bool(widget, editable)
             self._update_renderer_bool_value(renderer)
@@ -79,7 +99,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
     def _create_renderer_spin(self, widget, digits, editable, lower, upper):
         renderer = gtk.CellRendererSpin()
-        renderer.connect('edited', self.on_renderer_value_changed)
+        renderer.connect('edited', self._on_renderer_value_changed)
         if not editable:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
@@ -96,7 +116,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
     def _create_renderer_bool(self, widget, editable):
         renderer = gtk.CellRendererCombo()
-        renderer.connect('edited', self.on_renderer_value_changed)
+        renderer.connect('edited', self._on_renderer_value_changed)
         if not editable:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
@@ -106,26 +126,27 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
         renderer.props.has_entry = False
         renderer.props.editable = True
         iter = store.append()
-        store.set(iter, "Yes")
+        store.set(iter, 0, "Yes")
         iter = store.append()
-        store.set(iter, "No")
+        store.set(iter, 0, "No")
         renderer.props.model = store
         return renderer
 
 
     def _update_renderer_bool_value(self, renderer):
-        if isinstance(self.props.property_value, bool):
+        val = self.props.property_value
+        if isinstance(val, bool):
             if val:
-                renderer.props.active = 0
+                renderer.props.text = "No"
             else:
-                renderer.props.active = 1
+                renderer.props.text = "Yes"
         else:
             renderer.props.text = "---"
 
 
     def _create_renderer_combo(self, widget, enum_class):
         renderer = gtk.CellRendererCombo()
-        renderer.connect('edited', self.on_renderer_value_changed)
+        renderer.connect('edited', self._on_renderer_value_changed)
         store = gtk.ListStore(gobject.TYPE_STRING)
         renderer.props.model = store
         renderer.props.text_column = 0
@@ -140,14 +161,14 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
     def _update_renderer_combo_value(self, renderer, enum_class):
         val = self.props.property_value
         if isinstance(val, int) and val >= 0 and val < len(enum_class.__enum_values__):
-            renderer.props.active = val
+            renderer.props.text = str(val)
         else:
             renderer.props.text = "---"
 
 
     def _create_renderer_text(self, widget, editable):
         renderer = gtk.CellRendererText()
-        renderer.connect('edited', self.on_renderer_value_changed)
+        renderer.connect('edited', self._on_renderer_value_changed)
         if not editable:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
@@ -156,13 +177,13 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
         return renderer
 
 
-    def _update_renderer_text_value(renderer):
+    def _update_renderer_text_value(self, renderer):
         val = self.props.property_value
-        if isinstance(val, string):
+        if isinstance(val, str):
             renderer.props.text = val
         else:
             renderer.props.text = "---"
 
 
-    def _on_renderer_value_changed(self, path, new_text):
+    def _on_renderer_value_changed(self, renderer, path, new_text):
         self.emit('edited', path, new_text)
