@@ -74,11 +74,14 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
            pspec.value_type == gobject.TYPE_LONG or \
            pspec.value_type == gobject.TYPE_ULONG or \
            pspec.value_type == gobject.TYPE_INT64 or \
-           pspec.value_type == gobject.TYPE_UINT64 or \
-           pspec.value_type == gobject.TYPE_FLOAT or \
-           pspec.value_type == gobject.TYPE_DOUBLE:
+           pspec.value_type == gobject.TYPE_UINT64:
             if renderer == None:
                 renderer = self._create_renderer_spin(widget, 0, editable, pspec.minimum, pspec.maximum)
+            self._update_renderer_spin_value(renderer)
+        elif pspec.value_type == gobject.TYPE_FLOAT or \
+             pspec.value_type == gobject.TYPE_DOUBLE:
+            if renderer == None:
+                renderer = self._create_renderer_spin(widget, 2, editable, pspec.minimum, pspec.maximum)
             self._update_renderer_spin_value(renderer)
         elif pspec.value_type == gobject.TYPE_BOOLEAN:
             if renderer == None:
