@@ -137,9 +137,9 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
         val = self.props.property_value
         if isinstance(val, bool):
             if val:
-                renderer.props.text = "No"
-            else:
                 renderer.props.text = "Yes"
+            else:
+                renderer.props.text = "No"
         else:
             renderer.props.text = "---"
 
