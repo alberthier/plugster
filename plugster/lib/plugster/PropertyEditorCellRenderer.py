@@ -95,6 +95,8 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
             if renderer == None:
                 renderer = self._create_renderer_combo(widget, pspec.enum_class)
             self._update_renderer_combo_value(renderer, pspec.enum_class)
+        else:
+            raise Exception("No renderer implemented for '{0}'".format(pspec))
 
         self._renderers[pspec] = renderer
         return renderer;
