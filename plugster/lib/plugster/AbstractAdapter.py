@@ -19,7 +19,7 @@ class AbstractAdapter(goocanvas.Group):
         self.props.font_desc = font_desc
         if AbstractAdapter.font_height == 0:
             metrics = self.get_canvas().get_pango_context().get_metrics(font_desc, None)
-            AbstractAdapter.font_height = pango.PIXELS(metrics.get_ascent() + metrics.get_descent())
+            AbstractAdapter.font_height = float(pango.PIXELS(metrics.get_ascent() + metrics.get_descent()))
 
 
     def _on_object_deleted(self, gst_object):
