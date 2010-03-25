@@ -41,13 +41,11 @@ class PadAdapter(AbstractAdapter):
 
         tooltip = "<b>Capabilities</b>"
         for structure in self.gst_object.get_caps():
-            tooltip += u"\n    \u2022 " + structure.get_name()
-            i = 0
-            while i < structure.n_fields():
+            tooltip += u"\n    \u2022 " + glib.markup_escape_text(structure.get_name())
+            for i in xrange(structure.n_fields()):
                 name = structure.nth_field_name(i)
                 val = self._get_structure_value_string(structure[name])
-                tooltip += u"\n        \u2022 {0} = {1}".format(name, val)
-                i += 1
+                tooltip += u"\n        \u2022 {0} = {1}".format(glib.markup_escape_text(name), glib.markup_escape_text(val))
 
         self.props.tooltip = tooltip
         self.background.props.tooltip = tooltip

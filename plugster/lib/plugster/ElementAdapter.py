@@ -14,7 +14,7 @@ class ElementAdapter(AbstractElementAdapter):
         AbstractElementAdapter.__init__(self, gst_element, layer)
 
         factory = self.gst_object.get_factory()
-        self.props.tooltip = "<b>{0}</b>\n{1}".format(factory.get_longname(), glib.markup_escape_text(factory.get_description()))
+        self.props.tooltip = "<b>{0}</b>\n{1}".format(glib.markup_escape_text(factory.get_longname()), glib.markup_escape_text(factory.get_description()))
 
         self.gst_object.connect('pad-added', self._on_pad_added)
         self.gst_object.connect('no-more-pads', self._relayout)

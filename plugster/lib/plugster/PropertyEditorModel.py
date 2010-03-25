@@ -31,11 +31,13 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                 first = False
                 self.param_specs = list(obj.__class__.props)
             else:
-                for pspec in obj.__class__.props:
-                    if not pspec in self.param_specs:
-                        self.param_specs.remove(pspec)
+                toremove = []
+                for pspec in self.param_specs:
+                    if not pspec in obj.__class__.props:
+                        toremove.append(pspec)
+                for pspec in toremove:
+                    self.param_specs.remove(pspec)
 
-        self.param_specs.sort(lambda a, b: a.nick < b.nick)
         for index, pspec in enumerate(self.param_specs):
             path = ( index, )
             self.row_inserted(path, self.get_iter(path))
@@ -115,7 +117,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                 else:
                     prop_name = pspec.nick
                 val = self._get_objects_value(pspec)
-                if pspec.default_value != val:
+                if val == None or pspec.default_value != val:
                     return "<b>{0}</b>".format(prop_name)
                 else:
                     return prop_name
@@ -131,10 +133,10 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                     if pspec.flags & gobject.PARAM_READABLE:
                         flags += ", "
                     flags += "Writable"
-                return "<b>{nick}</b> ({name})\n<b>Flags:</b> {flags}\n<b>Default value:</b> {defval}\n{desc}".format(nick = pspec.nick,
-                                                                                                                      name = pspec.name,
-                                                                                                                      flags = flags,
-                                                                                                                      defval = pspec.default_value,
+                return "<b>{nick}</b> ({name})\n<b>Flags:</b> {flags}\n<b>Default value:</b> {defval}\n{desc}".format(nick = glib.markup_escape_text(pspec.nick),
+                                                                                                                      name = glib.markup_escape_text(pspec.name),
+                                                                                                                      flags = glib.markup_escape_text(flags),
+                                                                                                                      defval = glib.markup_escape_text(str(pspec.default_value)),
                                                                                                                       desc = glib.markup_escape_text(pspec.blurb))
         return None
 

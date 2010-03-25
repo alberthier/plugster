@@ -114,7 +114,15 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
 
     def _update_renderer_spin_value(self, renderer):
-        self._update_renderer_text_value(renderer)
+        val = self.props.property_value
+        if val != None:
+            if isinstance(val, float):
+                val = "{0:.2f}".format(val)
+            else:
+                val = str(val)
+            renderer.props.text = val
+        else:
+            renderer.props.text = "---"
 
 
     def _create_renderer_bool(self, widget, editable):
