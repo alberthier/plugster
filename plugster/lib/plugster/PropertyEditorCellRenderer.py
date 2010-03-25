@@ -107,7 +107,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_NORMAL]
-        renderer.props.adjustment = gtk.Adjustment(value = 0, lower = lower, upper = upper, step_incr = 0, page_incr = 0, page_size = 0)
+        renderer.props.adjustment = gtk.Adjustment(value = 0, lower = lower, upper = upper, step_incr = 1, page_incr = 10, page_size = 0)
         renderer.props.digits = digits
         renderer.props.editable = editable
         return renderer
