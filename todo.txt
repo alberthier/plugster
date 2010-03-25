@@ -1,5 +1,4 @@
-- Fix pango markup related issues
 - Python 3 compatibility
 - Element factories filter
 - Element description view
-- properties != default => bold
+- GStreamer / GLib error log handler
