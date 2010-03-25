@@ -116,20 +116,13 @@ class ElementAdapter(AbstractElementAdapter):
             self.title_background.props.fill_color = style.dark[gtk.STATE_NORMAL]
 
 
-    def _on_button_pressed(self, widget, event):
-        if event.button == 1: # Left button
-            (x, y) = event.get_coords()
-            if self.get_canvas().get_items_at(x, y, False) == None:
-                self.gst_object.plugster_selection.clear()
-        return False
-
-
     def _on_start_drag(self, adapter, widget, event):
         if event.button == 1: # Left button
             if event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.BUTTON1_MASK):
                 self.get_selection().toggle(self.gst_object)
             else:
                 self.get_selection().select(self.gst_object)
+                self.raise_(None)
 
             self._on_end_drag_id = adapter.connect('button-release-event', self._on_end_drag)
             self._on_drag_move_id = adapter.connect('motion-notify-event', self._on_drag_move)
