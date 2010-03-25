@@ -111,9 +111,14 @@ class PropertyEditorModel(gtk.GenericTreeModel):
             pspec = self.param_specs[index]
             if column == PropertyEditorModel.PROPERTY_NAME_COLUMN:
                 if (len(pspec.nick) == 0):
-                    return pspec.name
+                    prop_name = pspec.name
                 else:
-                    return pspec.nick
+                    prop_name = pspec.nick
+                val = self._get_objects_value(pspec)
+                if pspec.default_value != val:
+                    return "<b>{0}</b>".format(prop_name)
+                else:
+                    return prop_name
             elif column == PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN:
                 return pspec
             elif column == PropertyEditorModel.PROPERTY_VALUE_COLUMN:

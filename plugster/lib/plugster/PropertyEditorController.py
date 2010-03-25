@@ -16,7 +16,7 @@ class PropertyEditorController(gobject.GObject):
 
         renderer = gtk.CellRendererText()
         column = gtk.TreeViewColumn("Property", renderer,
-                                    text = PropertyEditorModel.PROPERTY_NAME_COLUMN)
+                                    markup = PropertyEditorModel.PROPERTY_NAME_COLUMN)
         self.tree_view.append_column(column)
 
         self.tree_view.set_tooltip_column(PropertyEditorModel.TOOLTIP_COLUMN)
