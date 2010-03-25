@@ -90,8 +90,8 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
             self._update_renderer_text_value(renderer)
         elif pspec.value_type.is_a(gobject.TYPE_ENUM) and editable:
             if renderer == None:
-                renderer = self._create_renderer_combo(widget, spec.enum_class)
-            self._update_renderer_combo_value(renderer, spec.enum_class)
+                renderer = self._create_renderer_combo(widget, pspec.enum_class)
+            self._update_renderer_combo_value(renderer, pspec.enum_class)
 
         self._renderers[pspec] = renderer
         return renderer;
@@ -152,16 +152,16 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
         renderer.props.text_column = 0
         renderer.props.has_entry = False
         renderer.props.editable = True
-        for enum_item in enum_class.__enum_values__:
+        for (index, enum_item) in enum_class.__enum_values__.iteritems():
             iter = store.append()
-            store.set(iter, enum_item.value_nick)
+            store.set(iter, 0, enum_item.value_nick)
         return renderer
 
 
     def _update_renderer_combo_value(self, renderer, enum_class):
         val = self.props.property_value
         if isinstance(val, int) and val >= 0 and val < len(enum_class.__enum_values__):
-            renderer.props.text = str(val)
+            renderer.props.text = enum_class.__enum_values__[val].value_nick
         else:
             renderer.props.text = "---"
 
@@ -179,8 +179,8 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
     def _update_renderer_text_value(self, renderer):
         val = self.props.property_value
-        if isinstance(val, str):
-            renderer.props.text = val
+        if val != None:
+            renderer.props.text = str(val)
         else:
             renderer.props.text = "---"
 

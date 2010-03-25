@@ -42,8 +42,8 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
 
     def set_property_value(self, path, new_text):
-        iter = get_iter(path)
-        pspec = iter.user_data
+        iter = self.get_iter(path)
+        pspec = self.get_value(iter, PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN)
         if pspec.value_type == gobject.TYPE_CHAR or \
            pspec.value_type == gobject.TYPE_UCHAR or \
            pspec.value_type == gobject.TYPE_INT or \
@@ -60,7 +60,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
         elif pspec.value_type == gobject.TYPE_BOOLEAN:
             val = new_text == "Yes"
         elif pspec.value_type == gobject.TYPE_ENUM:
-            for enum_item in pspec.enum_class.__enum_values__:
+            for (index, enum_item) in pspec.enum_class.__enum_values__.iteritems():
                 if new_text == enum_item.value_nick:
                     val = enum_item
                     break
