@@ -35,8 +35,7 @@ class ElementData(gobject.GObject):
 
 
     def get_pipeline(self):
-        if isinstance(self.element, gst.Pipeline):
-            return self.element
-        else:
-            return self.element.get_parent().plugster_data.get_pipeline()
-
+        current = self.element
+        while current.get_parent() != None:
+            current = current.get_parent()
+        return current
