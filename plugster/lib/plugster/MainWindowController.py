@@ -83,6 +83,10 @@ class MainWindowController(gobject.GObject):
             gtk.main_quit()
 
 
+    def load(self, filepath):
+        self.pipeline_controller.load(filepath)
+
+
     def quit_app(self, object):
         self.pipeline_controller.close()
         gtk.main_quit()

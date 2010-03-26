@@ -4,6 +4,7 @@ import gst
 
 from ElementData import *
 from PipelineAdapter import *
+from XmlExtraDataLoader import *
 
 class PipelineController(gobject.GObject):
 
@@ -29,11 +30,17 @@ class PipelineController(gobject.GObject):
 
 
     def open(self):
+        self.load(self._get_filepath("Open", gtk.FILE_CHOOSER_ACTION_OPEN))
+
+
+    def load(self, filepath):
         self.reset()
-        self.filepath = self._get_filepath("Open", gtk.FILE_CHOOSER_ACTION_OPEN)
+        self.filepath = filepath
         if self.filepath != None:
+            data_loader = XmlExtraDataLoader()
+            data_loader.load(self.filepath)
             xml = gst.XML()
-            xml.connect('object-loaded', ElementData.load)
+            xml.connect('object-loaded', ElementData.load, data_loader)
             error = True
             if xml.parse_file(self.filepath, PipelineController.ROOT_PIPELINE_NAME):
                 elements = xml.get_topelements()

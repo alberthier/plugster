@@ -142,7 +142,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
 
     def on_iter_next(self, iter):
-        if iter:
+        if iter != None:
             index = self.get_user_data(iter)
             if index >= 0 and index < len(self.param_specs) - 1:
                 return self.create_tree_iter(index + 1)
@@ -153,7 +153,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
 
     def on_iter_children(self, parent):
-        if not parent:
+        if parent == None:
             if (len(self.param_specs) != 0):
                 return self.create_tree_iter(0)
             else:
@@ -167,14 +167,14 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
 
     def on_iter_n_children(self, iter):
-        if not iter:
+        if iter == None:
             return len(self.param_specs)
         else:
             return 0
 
 
     def on_iter_nth_child(self, parent, n):
-        if not parent and n >= 0 and n < len(self.param_specs):
+        if parent == None and n >= 0 and n < len(self.param_specs):
             return self.create_tree_iter(n)
         else:
             return None

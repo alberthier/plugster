@@ -34,7 +34,7 @@ class ElementFactoriesWidget(gtk.TreeView):
 
     def _drag_data_get_element_factory(self, widget, drag_context, selection_data, info, timestamp):
         (model, iter) = self.get_selection().get_selected()
-        if iter and not model.iter_has_child(iter):
+        if iter != None and not model.iter_has_child(iter):
             factory = model.get(iter, ElementFactoriesModel.ELEMENT_FACTORY_COLUMN)[0]
             atom = gtk.gdk.atom_intern("application/x-plugster-element-factory", True)
             selection_data.set(atom, 8, factory.get_name())

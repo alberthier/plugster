@@ -26,6 +26,9 @@ class PipelineAdapter(AbstractElementAdapter):
         self._global_dx = 0;
         self._global_dy = 0;
 
+        for child in self.gst_object:
+            self._on_element_added(self.gst_object, child)
+
 
     def _on_object_deleted(self, gst_object):
         canvas = self.get_canvas()

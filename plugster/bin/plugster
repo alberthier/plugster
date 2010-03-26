@@ -18,6 +18,8 @@ def get_plugster_path():
 def start(plugster_path):
     from plugster.MainWindowController import MainWindowController
     main_controller = MainWindowController(plugster_path)
+    if len(sys.argv) > 1:
+        main_controller.load(sys.argv[1])
 
 
 if __name__ == "__main__":

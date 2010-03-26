@@ -26,8 +26,12 @@ class ElementData(gobject.GObject):
 
 
     @staticmethod
-    def load(xml_node, gst_object, user_data):
-        pass
+    def load(xml_node, gst_object, user_data, data_loader):
+        xml_data = data_loader.get_data(gst_object.get_name())
+        data = ElementData(gst_object)
+        if xml_data != None:
+            data.x = xml_data[0]
+            data.y = xml_data[1]
 
 
     def get_pipeline(self):

@@ -35,5 +35,5 @@ class PropertyEditorController(gobject.GObject):
 
 
     def _on_selection_changed(self, selection):
-        if selection:
+        if selection != None:
             self.tree_view.props.model.set_objects(selection.selected_elements)

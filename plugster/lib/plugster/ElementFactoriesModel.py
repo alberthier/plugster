@@ -26,14 +26,14 @@ class ElementFactoriesModel(gtk.TreeStore):
         for section in sections:
             section = section.strip()
             current = self.iter_children(parent)
-            while current:
+            while current != None:
                 text = self.get(current, ElementFactoriesModel.NAME_COLUMN)[0]
                 if section == text:
                     break
                 else:
                     current = self.iter_next(current)
 
-            if not current:
+            if current == None:
                 current = self.append(parent, (section, None, gtk.STOCK_DIRECTORY, None))
 
             parent = current
@@ -45,13 +45,13 @@ class ElementFactoriesModel(gtk.TreeStore):
         (name1, factory1) = self.get(iter1, ElementFactoriesModel.NAME_COLUMN, ElementFactoriesModel.ELEMENT_FACTORY_COLUMN)
         (name2, factory2) = self.get(iter2, ElementFactoriesModel.NAME_COLUMN, ElementFactoriesModel.ELEMENT_FACTORY_COLUMN)
 
-        if factory1:
-            if factory2:
+        if factory1 != None:
+            if factory2 != None:
                 return cmp(name1.lower(), name2.lower())
             else:
                 return 1
         else:
-            if factory2:
+            if factory2 != None:
                 return -1
             else:
                 return cmp(name1.lower(), name2.lower())
