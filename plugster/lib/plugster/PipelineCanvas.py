@@ -21,6 +21,6 @@ class PipelineCanvas(goocanvas.Canvas):
     def place_coord_on_grid(coord):
         delta = math.fmod(coord, PipelineCanvas.GRID_SIZE)
         if delta < PipelineCanvas.GRID_SIZE / 2.0:
-            return -delta
+            return int(-delta)
         else:
-            return PipelineCanvas.GRID_SIZE - delta
+            return int(PipelineCanvas.GRID_SIZE - delta)

@@ -65,7 +65,8 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
         renderer = None
         if pspec in self._renderers:
             renderer = self._renderers[pspec]
-        editable = pspec.flags & gobject.PARAM_WRITABLE and not pspec.flags & gobject.PARAM_CONSTRUCT_ONLY
+        editable = pspec.flags & gobject.PARAM_WRITABLE == gobject.PARAM_WRITABLE
+        editable = editable and not pspec.flags & gobject.PARAM_CONSTRUCT_ONLY == gobject.PARAM_CONSTRUCT_ONLY
 
         if pspec.value_type == gobject.TYPE_CHAR or \
            pspec.value_type == gobject.TYPE_UCHAR or \
@@ -95,8 +96,12 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
             if renderer == None:
                 renderer = self._create_renderer_combo(widget, pspec.enum_class)
             self._update_renderer_combo_value(renderer, pspec.enum_class)
-        else:
+        elif pspec.value_type.is_a(gobject.TYPE_FLAGS):
             print("No renderer implemented for '{0}'".format(pspec))
+            if renderer == None:
+                renderer = self._create_renderer_text(widget, False)
+            self._update_renderer_text_value(renderer)
+        else:
             if renderer == None:
                 renderer = self._create_renderer_text(widget, editable)
             self._update_renderer_text_value(renderer)

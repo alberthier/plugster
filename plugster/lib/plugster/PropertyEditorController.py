@@ -32,6 +32,7 @@ class PropertyEditorController(gobject.GObject):
     def on_pipeline_changed(self, pipeline_controller, new_pipeline):
         selection = new_pipeline.plugster_selection
         selection.connect('selection-changed', self._on_selection_changed)
+        self._on_selection_changed(selection)
 
 
     def _on_selection_changed(self, selection):

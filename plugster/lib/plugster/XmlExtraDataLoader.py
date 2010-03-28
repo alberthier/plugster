@@ -1,10 +1,8 @@
 import xml.etree.cElementTree
 
+from Definitions import *
+
 class XmlExtraDataLoader(object):
-
-    GST_NAMESPACE      = "http://gstreamer.net/gst-core/1.0/"
-    PLUGSTER_NAMESPACE = "http://gstreamer.net/plugster/1.0/"
-
 
     def __init__(self):
         object.__init__(self)
@@ -16,11 +14,11 @@ class XmlExtraDataLoader(object):
 
 
     def _gst(self, tag):
-        return "{" + XmlExtraDataLoader.GST_NAMESPACE + "}" + tag
+        return "{" + GST_XML_NAMESPACE + "}" + tag
 
 
     def _plugster(self, tag):
-        return "{" + XmlExtraDataLoader.PLUGSTER_NAMESPACE + "}" + tag
+        return "{" + PLUGSTER_XML_NAMESPACE + "}" + tag
 
 
     def load(self, filepath):
@@ -40,7 +38,7 @@ class XmlExtraDataLoader(object):
                 data_x_node = data_node.find(self._plugster("x"))
                 data_y_node = data_node.find(self._plugster("y"))
                 if name_node != None and data_x_node != None and data_y_node != None:
-                    self._data[name_node.text] = (int(data_x_node.text), int(data_y_node.text))
+                    self._data[name_node.text] = (int(data_x_node.text.strip()), int(data_y_node.text.strip()))
         children_node = elt.find(self._gst("children"))
         if children_node != None:
             for child in children_node.getchildren():

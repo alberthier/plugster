@@ -1,3 +1,5 @@
+import os.path
+
 import gobject
 import gtk
 import gst
@@ -5,6 +7,7 @@ import gst
 from ElementData import *
 from PipelineAdapter import *
 from XmlExtraDataLoader import *
+from XmlPipelineSerializer import *
 
 class PipelineController(gobject.GObject):
 
@@ -63,15 +66,11 @@ class PipelineController(gobject.GObject):
         else:
             error = False
             try:
-                output_file = file(self.filepath, 'w')
+                serializer = XmlPipelineSerializer(self.root_pipeline)
+                serializer.save(self.filepath)
             except:
                 error = True
                 output_file = None
-
-            if output_file != None:
-                error = gst.xml_write_file(self.root_pipeline, output_file) == -1
-                output_file.close()
-
             if error:
                 self._display_error_message("Unable to write the file '{0}'".format(self.filepath))
 
@@ -79,6 +78,8 @@ class PipelineController(gobject.GObject):
     def save_as(self):
         path = self._get_filepath("Save", gtk.FILE_CHOOSER_ACTION_SAVE)
         if path != None:
+            if not os.path.splitext(path)[1].lower() in [ ".gst", ".xml" ]:
+                path += ".gst"
             self.filepath = path
             self.save()
 
