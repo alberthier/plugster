@@ -102,8 +102,9 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
                 renderer = self._create_renderer_text(widget, False)
             self._update_renderer_text_value(renderer)
         else:
+            # Unhandled property types
             if renderer == None:
-                renderer = self._create_renderer_text(widget, editable)
+                renderer = self._create_renderer_text(widget, False)
             self._update_renderer_text_value(renderer)
 
         self._renderers[pspec] = renderer
