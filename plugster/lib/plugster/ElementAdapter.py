@@ -150,11 +150,11 @@ class ElementAdapter(AbstractElementAdapter):
         adapter.disconnect(self._on_drag_move_id)
         dx = PipelineCanvas.place_coord_on_grid(self._global_dx)
         dy = PipelineCanvas.place_coord_on_grid(self._global_dy)
+        adapter.translate(dx, dy)
+        adapter.gst_object.plugster_data.x += round(self._global_dx + dx)
+        adapter.gst_object.plugster_data.y += round(self._global_dy + dy)
         self._drag_x = 0
         self._drag_y = 0
         self._global_dx = 0
         self._global_dy = 0
-        adapter.translate(dx, dy)
-        adapter.gst_object.plugster_data.x = round(self._global_dx + dx)
-        adapter.gst_object.plugster_data.y = round(self._global_dy + dy)
         return False;
