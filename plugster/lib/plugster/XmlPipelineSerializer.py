@@ -18,8 +18,9 @@ class XmlPipelineSerializer(object):
         self._doc.documentElement.setAttribute("xmlns:plugster", PLUGSTER_XML_NAMESPACE)
         self.create_element_node(self._doc.documentElement, self._pipeline, True)
         f = open(filepath, "w")
-        f.write(self._doc.documentElement.toxml(encoding = "UTF-8"))
+        f.write(self._doc.toxml(encoding = "UTF-8"))
         f.close()
+
 
     def create_element_node(self, parent, gst_element, root):
         doc = parent.ownerDocument
@@ -66,7 +67,11 @@ class XmlPipelineSerializer(object):
 
 
     def _format_value(self, pspec, value):
-        return str(value)
+        if isinstance(value, gobject.GFlags) or \
+           isinstance(value, gobject.GEnum):
+            return str(int(value))
+        else:
+            return str(value)
 
 
     def _create_element(self, namespace, tagname):

@@ -64,15 +64,13 @@ class PipelineController(gobject.GObject):
         if self.filepath == None:
             self.save_as()
         else:
-            error = False
             try:
                 serializer = XmlPipelineSerializer(self.root_pipeline)
                 serializer.save(self.filepath)
-            except:
-                error = True
-                output_file = None
-            if error:
+            except Exception as e:
+                print e
                 self._display_error_message("Unable to write the file '{0}'".format(self.filepath))
+                self.filepath = None
 
 
     def save_as(self):
