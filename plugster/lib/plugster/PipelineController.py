@@ -68,7 +68,6 @@ class PipelineController(gobject.GObject):
                 serializer = XmlPipelineSerializer(self.root_pipeline)
                 serializer.save(self.filepath)
             except Exception as e:
-                print e
                 self._display_error_message("Unable to write the file '{0}'".format(self.filepath))
                 self.filepath = None
 

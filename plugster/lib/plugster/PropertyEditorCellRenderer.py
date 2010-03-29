@@ -1,6 +1,8 @@
 import gobject
 import gtk
 
+from CellRendererFlags import *
+
 class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
     __gsignals__ = {
@@ -97,10 +99,9 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
                 renderer = self._create_renderer_combo(widget, pspec.enum_class)
             self._update_renderer_combo_value(renderer, pspec.enum_class)
         elif pspec.value_type.is_a(gobject.TYPE_FLAGS):
-            print("No renderer implemented for '{0}'".format(pspec))
             if renderer == None:
-                renderer = self._create_renderer_text(widget, False)
-            self._update_renderer_text_value(renderer)
+                renderer = self._create_renderer_flags(widget, editable)
+            self._update_renderer_flags_value(renderer)
         else:
             # Unhandled property types
             if renderer == None:
@@ -205,6 +206,25 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
             renderer.props.text = str(val)
         else:
             renderer.props.text = "---"
+
+
+    def _create_renderer_flags(self, widget, editable):
+        renderer = CellRendererFlags()
+        renderer.connect('edited', self._on_renderer_value_changed)
+        if not editable:
+            renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
+        else:
+            renderer.props.foreground = widget.get_style().text[gtk.STATE_NORMAL]
+        renderer.props.editable = editable
+        return renderer
+
+
+    def _update_renderer_flags_value(self, renderer):
+        val = self.props.property_value
+        if val != None:
+            renderer.props.property_value = val
+        else:
+            renderer.props.property_value = None
 
 
     def _on_renderer_value_changed(self, renderer, path, new_text):

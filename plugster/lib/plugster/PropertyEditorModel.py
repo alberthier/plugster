@@ -51,7 +51,8 @@ class PropertyEditorModel(gtk.GenericTreeModel):
            pspec.value_type == gobject.TYPE_INT or \
            pspec.value_type == gobject.TYPE_UINT or \
            pspec.value_type == gobject.TYPE_LONG or \
-           pspec.value_type == gobject.TYPE_ULONG:
+           pspec.value_type == gobject.TYPE_ULONG or \
+           pspec.value_type.is_a(gobject.TYPE_FLAGS):
             val = int(new_text)
         elif pspec.value_type == gobject.TYPE_INT64 or \
            pspec.value_type == gobject.TYPE_UINT64:
