@@ -36,10 +36,11 @@ class CellRendererFlags(gtk.CellRendererText):
     def start_editing(self, event, widget, path, background_area, cell_area, flags):
         menu = gtk.Menu()
         val = int(self._property_value)
-        for index, flag_name in enumerate(self._property_value.value_names):
-            item = gtk.CheckMenuItem(label = flag_name)
-            item.set_active((val >> index) & 0x01 == 1)
-            item.index = index
+        flags_class = type(self._property_value)
+        for mask, flag in flags_class.__flags_values__.iteritems():
+            item = gtk.CheckMenuItem(label = flag.first_value_name)
+            item.set_active(val & mask == mask)
+            item.mask = mask
             item.path = path
             item.connect('toggled', self._on_item_toggled)
             menu.append(item)
@@ -50,8 +51,7 @@ class CellRendererFlags(gtk.CellRendererText):
     def _on_item_toggled(self, menu_item):
         val = 0
         for item in menu_item.props.parent:
-            if menu_item.get_active():
-                val = val | 1 << menu_item.index
-        self.props.property_value = val
+            if item.get_active():
+                val = val | item.mask
         self.emit('edited', menu_item.path, str(val))
 
