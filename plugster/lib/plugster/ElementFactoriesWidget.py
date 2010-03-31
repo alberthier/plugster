@@ -11,9 +11,14 @@ class ElementFactoriesWidget(gtk.VBox):
 
         self._entry = gtk.Entry()
         self._entry.connect("notify::text", self._on_filter_changed)
+        self._entry.props.has_frame = False
         self.pack_start(self._entry, False)
 
+        self.pack_start(gtk.HSeparator(), False)
+
         scroll = gtk.ScrolledWindow()
+        scroll.props.hscrollbar_policy = gtk.POLICY_AUTOMATIC
+        scroll.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
         self.pack_end(scroll)
         self._treeview = gtk.TreeView()
         self._treeview.props.headers_visible = False
