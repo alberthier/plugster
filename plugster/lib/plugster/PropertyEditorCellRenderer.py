@@ -7,7 +7,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
     __gsignals__ = {
         # edited signal: (path, new_value)
-        'edited': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING)),
+        'edited': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
     }
 
     __gproperties__ = {
@@ -63,7 +63,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
 
     def _get_current_renderer(self, widget):
-        pspec = self.props.property_param_spec
+        pspec = self._property_param_spec
         renderer = None
         if pspec in self._renderers:
             renderer = self._renderers[pspec]
@@ -114,7 +114,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
     def _create_renderer_spin(self, widget, digits, editable, lower, upper):
         renderer = gtk.CellRendererSpin()
-        renderer.connect('edited', self._on_renderer_value_changed)
+        renderer.connect('edited', self._on_renderer_spin_value_changed)
         if not editable:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
@@ -126,7 +126,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
 
     def _update_renderer_spin_value(self, renderer):
-        val = self.props.property_value
+        val = self._property_value
         if val != None:
             if isinstance(val, float):
                 val = "{0:.2f}".format(val)
@@ -137,9 +137,25 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
             renderer.props.text = "---"
 
 
+    def _on_renderer_spin_value_changed(self, renderer, path, new_text):
+        if self._property_param_spec.value_type == gobject.TYPE_FLOAT or \
+           self._property_param_spec.value_type == gobject.TYPE_DOUBLE:
+            try:
+                new_val = float(new_text)
+                self.emit('edited', path, new_val)
+            except ValueError:
+               pass
+        else:
+            try:
+                new_val = int(new_text)
+                self.emit('edited', path, new_val)
+            except ValueError:
+               pass
+
+
     def _create_renderer_bool(self, widget, editable):
         renderer = gtk.CellRendererCombo()
-        renderer.connect('edited', self._on_renderer_value_changed)
+        renderer.connect('edited', self._on_renderer_bool_value_changed)
         if not editable:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
@@ -157,7 +173,7 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
 
     def _update_renderer_bool_value(self, renderer):
-        val = self.props.property_value
+        val = self._property_value
         if isinstance(val, bool):
             if val:
                 renderer.props.text = "Yes"
@@ -167,31 +183,40 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
             renderer.props.text = "---"
 
 
+    def _on_renderer_bool_value_changed(self, renderer, path, new_text):
+        self.emit('edited', path, new_text == "Yes")
+
+
     def _create_renderer_combo(self, widget, enum_class):
         renderer = gtk.CellRendererCombo()
-        renderer.connect('edited', self._on_renderer_value_changed)
-        store = gtk.ListStore(gobject.TYPE_STRING)
+        renderer.connect('changed', self._on_renderer_combo_value_changed)
+        store = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
         renderer.props.model = store
         renderer.props.text_column = 0
         renderer.props.has_entry = False
         renderer.props.editable = True
         for (index, enum_item) in enum_class.__enum_values__.iteritems():
             iter = store.append()
-            store.set(iter, 0, enum_item.value_nick)
+            store.set(iter, 0, enum_item.value_nick, 1, enum_item)
         return renderer
 
 
     def _update_renderer_combo_value(self, renderer, enum_class):
-        val = self.props.property_value
+        val = self._property_value
         if isinstance(val, int) and val >= 0 and val < len(enum_class.__enum_values__):
             renderer.props.text = enum_class.__enum_values__[val].value_nick
         else:
             renderer.props.text = "---"
 
 
+    def _on_renderer_combo_value_changed(self, renderer, path, new_iter):
+        (enum_item,) = renderer.props.model.get(new_iter, 1)
+        self.emit('edited', path, enum_item)
+
+
     def _create_renderer_text(self, widget, editable):
         renderer = gtk.CellRendererText()
-        renderer.connect('edited', self._on_renderer_value_changed)
+        renderer.connect('edited', self._on_renderer_text_value_changed)
         if not editable:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
@@ -201,16 +226,20 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
 
     def _update_renderer_text_value(self, renderer):
-        val = self.props.property_value
+        val = self._property_value
         if val != None:
             renderer.props.text = str(val)
         else:
             renderer.props.text = "---"
 
 
+    def _on_renderer_text_value_changed(self, renderer, path, new_text):
+        self.emit('edited', path, new_text)
+
+
     def _create_renderer_flags(self, widget, editable):
         renderer = CellRendererFlags()
-        renderer.connect('edited', self._on_renderer_value_changed)
+        renderer.connect('changed', self._on_renderer_flags_value_changed)
         if not editable:
             renderer.props.foreground = widget.get_style().text[gtk.STATE_INSENSITIVE]
         else:
@@ -220,12 +249,9 @@ class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
 
 
     def _update_renderer_flags_value(self, renderer):
-        val = self.props.property_value
-        if val != None:
-            renderer.props.property_value = val
-        else:
-            renderer.props.property_value = None
+        renderer.props.property_param_spec = self._property_param_spec
+        renderer.props.property_value = self._property_value
 
 
-    def _on_renderer_value_changed(self, renderer, path, new_text):
-        self.emit('edited', path, new_text)
+    def _on_renderer_flags_value_changed(self, renderer, path, new_flags):
+        self.emit('edited', path, new_flags)

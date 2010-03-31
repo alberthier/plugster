@@ -3,6 +3,11 @@ import gtk
 
 class CellRendererFlags(gtk.CellRendererText):
 
+    __gsignals__ = {
+        # edited signal: (path, new_value)
+        'changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
+    }
+
     __gproperties__ = {
         'property-param-spec' : (gobject.TYPE_PYOBJECT, "Flags property ParamSpec", "The ParamSpec of the flags property to edit", gobject.PARAM_READWRITE),
         'property-value'      : (gobject.TYPE_PYOBJECT, "Flags property value", "The current value of the flags property to edit", gobject.PARAM_READWRITE),
@@ -28,20 +33,33 @@ class CellRendererFlags(gtk.CellRendererText):
             self._property_param_spec = value
         elif property.name == 'property-value':
             self._property_value = value
-            self.props.text = " | ".join(self._property_value.value_names)
+            text = ""
+            for val in self._property_value:
+                if val != None:
+                    if val != 0:
+                        if len(text) != 0:
+                            text += " | "
+                        text += val.first_value_name
+                else:
+                    text = "---"
+                    break;
+            self.props.text = text
         else:
             raise AttributeError("unknown property {0}".format(property.name))
 
 
     def start_editing(self, event, widget, path, background_area, cell_area, flags):
         menu = gtk.Menu()
-        val = int(self._property_value)
-        flags_class = type(self._property_value)
-        for mask, flag in flags_class.__flags_values__.iteritems():
+        menu.path = path
+        for index, (mask, flag)in enumerate(self._property_param_spec.flags_class.__flags_values__.iteritems()):
             item = gtk.CheckMenuItem(label = flag.first_value_name)
-            item.set_active(val & mask == mask)
-            item.mask = mask
-            item.path = path
+            val = self._property_value[index]
+            if val != None:
+                item.set_active(val != 0)
+            else:
+                item.set_inconsistent(True)
+            item.flag = flag
+            item.index = index
             item.connect('toggled', self._on_item_toggled)
             menu.append(item)
         menu.show_all()
@@ -49,9 +67,9 @@ class CellRendererFlags(gtk.CellRendererText):
 
 
     def _on_item_toggled(self, menu_item):
-        val = 0
-        for item in menu_item.props.parent:
-            if item.get_active():
-                val = val | item.mask
-        self.emit('edited', menu_item.path, str(val))
+        if menu_item.get_active():
+            self._property_value[menu_item.index] = menu_item.flag
+        else:
+            self._property_value[menu_item.index] = 0
+        self.emit('changed', menu_item.props.parent.path, self._property_value)
 

@@ -24,11 +24,9 @@ class PropertyEditorModel(gtk.GenericTreeModel):
             self.row_deleted(( index, ))
 
         self.objects = objects
-        first = True
         self.param_specs = []
-        for obj in self.objects:
-            if first:
-                first = False
+        for inedx, obj in enumerate(self.objects):
+            if index == 0:
                 self.param_specs = list(obj.__class__.props)
             else:
                 toremove = []
@@ -43,35 +41,24 @@ class PropertyEditorModel(gtk.GenericTreeModel):
             self.row_inserted(path, self.get_iter(path))
 
 
-    def set_property_value(self, path, new_text):
+    def set_property_value(self, path, new_val):
         iter = self.get_iter(path)
         pspec = self.get_value(iter, PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN)
-        if pspec.value_type == gobject.TYPE_CHAR or \
-           pspec.value_type == gobject.TYPE_UCHAR or \
-           pspec.value_type == gobject.TYPE_INT or \
-           pspec.value_type == gobject.TYPE_UINT or \
-           pspec.value_type == gobject.TYPE_LONG or \
-           pspec.value_type == gobject.TYPE_ULONG or \
-           pspec.value_type.is_a(gobject.TYPE_FLAGS):
-            val = int(new_text)
-        elif pspec.value_type == gobject.TYPE_INT64 or \
-           pspec.value_type == gobject.TYPE_UINT64:
-            val = long(new_text)
-        elif pspec.value_type == gobject.TYPE_FLOAT or \
-           pspec.value_type == gobject.TYPE_DOUBLE:
-            val = float(new_text)
-        elif pspec.value_type == gobject.TYPE_BOOLEAN:
-            val = new_text == "Yes"
-        elif pspec.value_type == gobject.TYPE_ENUM:
-            for (index, enum_item) in pspec.enum_class.__enum_values__.iteritems():
-                if new_text == enum_item.value_nick:
-                    val = enum_item
-                    break
+        if pspec.value_type.is_a(gobject.TYPE_FLAGS):
+            for obj in self.objects:
+                val = obj.get_property(pspec.name)
+                for (index, (mask, flag)) in enumerate(pspec.flags_class.__flags_values__.iteritems()):
+                    if new_val[index] != None:
+                        if new_val[index] == 0:
+                            if val & mask == mask:
+                                val -= mask
+                        else:
+                            if val & mask == 0:
+                                val += mask
+                obj.set_property(pspec.name, val)
         else:
-            val = new_text
-
-        for obj in self.objects:
-            obj.set_property(pspec.name, val)
+            for obj in self.objects:
+                obj.set_property(pspec.name, new_val)
 
         self.row_changed(path, iter)
 
@@ -118,7 +105,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                 else:
                     prop_name = pspec.nick
                 val = self._get_objects_value(pspec)
-                if val == None or pspec.default_value != val:
+                if pspec.default_value != val:
                     return "<b>{0}</b>".format(prop_name)
                 else:
                     return prop_name
@@ -137,9 +124,19 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                 return "<b>{nick}</b> ({name})\n<b>Flags:</b> {flags}\n<b>Default value:</b> {defval}\n{desc}".format(nick = glib.markup_escape_text(pspec.nick),
                                                                                                                       name = glib.markup_escape_text(pspec.name),
                                                                                                                       flags = glib.markup_escape_text(flags),
-                                                                                                                      defval = glib.markup_escape_text(str(pspec.default_value)),
+                                                                                                                      defval = self._get_default_value(pspec),
                                                                                                                       desc = glib.markup_escape_text(pspec.blurb))
         return None
+
+
+    def _get_default_value(self, pspec):
+        if pspec.value_type.is_a(gobject.TYPE_ENUM):
+            defval = pspec.default_value.value_nick
+        elif pspec.value_type.is_a(gobject.TYPE_FLAGS):
+            defval = " | ".join(pspec.default_value.value_names)
+        else:
+            defval = str(pspec.default_value)
+        return glib.markup_escape_text(defval)
 
 
     def on_iter_next(self, iter):
@@ -188,14 +185,31 @@ class PropertyEditorModel(gtk.GenericTreeModel):
     def _get_objects_value(self, param_spec):
         val = None
         if param_spec.flags & gobject.PARAM_READABLE:
-            first = True
-            for obj in self.objects:
-                if first:
-                    first = False
-                    val = obj.get_property(param_spec.name)
-                else:
-                    tmp_val = obj.get_property(param_spec.name)
-                    if val != tmp_val:
-                        val = None
-                        break
+            if param_spec.value_type.is_a(gobject.TYPE_FLAGS):
+                for index, obj in enumerate(self.objects):
+                    if index == 0:
+                        val = []
+                        flags = obj.get_property(param_spec.name)
+                        for mask, flag in param_spec.flags_class.__flags_values__.iteritems():
+                            if flags & mask == mask:
+                                val.append(flag)
+                            else:
+                                val.append(0)
+                    else:
+                        flags = obj.get_property(param_spec.name)
+                        for index, (mask, flag) in enumerate(param_spec.flags_class.__flags_values__.iteritems()):
+                            if not val[index] == None:
+                                if flags & mask == mask and val[index] == 0:
+                                    val[index] = None
+                                elif flags & mask == 0 and val[index] != 0:
+                                    val[index] = None
+            else:
+                for index, obj in enumerate(self.objects):
+                    if index == 0:
+                        val = obj.get_property(param_spec.name)
+                    else:
+                        tmp_val = obj.get_property(param_spec.name)
+                        if val != tmp_val:
+                            val = None
+                            break
         return val

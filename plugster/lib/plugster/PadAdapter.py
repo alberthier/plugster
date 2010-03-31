@@ -93,11 +93,8 @@ class PadAdapter(AbstractAdapter):
             result = "[ {0}/{1} ]".format(value.num, value.denom)
         elif isinstance(value, list):
             result = "{ "
-            first = True
-            for v in value:
-                if first:
-                    first = False
-                else:
+            for index, v in enumerate(value):
+                if index != 0:
                     result += ", "
                 result += self._get_structure_value_string(v)
             result += " }"
