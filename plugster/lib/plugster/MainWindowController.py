@@ -22,11 +22,11 @@ class MainWindowController(gobject.GObject):
                 mainwindow = builder.get_object("mainwindow")
                 mainwindow.connect("destroy", self.quit_app)
 
-                elements_treeview_scrollwindow = builder.get_object("elements_treeview_scrollwindow")
+                elements_widget_container = builder.get_object("elements_widget_container")
                 pipeline_canvas_scrollwindow = builder.get_object("pipeline_canvas_scrollwindow")
                 property_editor_scrollwindow = builder.get_object("property_editor_scrollwindow")
 
-                elements_treeview_scrollwindow.add(ElementFactoriesWidget())
+                elements_widget_container.add(ElementFactoriesWidget())
                 canvas = PipelineCanvas()
                 pipeline_canvas_scrollwindow.add(canvas)
 
