@@ -3,3 +3,4 @@
 - Element description view
 - use GtkInfoBar for error / Warnings
 - GStreamer / GLib error log handler
+- Xml serializer use ElementTree + proper indenting
