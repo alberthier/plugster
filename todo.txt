@@ -4,3 +4,18 @@
 - use GtkInfoBar for error / Warnings
 - GStreamer / GLib error log handler
 - Xml serializer use ElementTree + proper indenting
+
+Renames:
+- PropertyEditorCellRenderer -> CellRendererPropertyValue
+- XmlExtraDataLoader -> XmlPipelineDeserializer
+
+Folders:
+- propertyview
+- adapters
+- model
+
+Review:
+- non public membres prefixed with '_'
+
+Bugs:
+- Double click on element -> move !?

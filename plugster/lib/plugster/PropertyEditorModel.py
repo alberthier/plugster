@@ -9,7 +9,8 @@ class PropertyEditorModel(gtk.GenericTreeModel):
     PROPERTY_PARAM_SPEC_COLUMN = 1
     PROPERTY_VALUE_COLUMN      = 2
     TOOLTIP_COLUMN             = 3
-    NB_COLUMNS                 = 4
+    ACTIVE_COLUMN              = 4
+    NB_COLUMNS                 = 5
 
     def __init__(self):
         gtk.GenericTreeModel.__init__(self)
@@ -80,6 +81,8 @@ class PropertyEditorModel(gtk.GenericTreeModel):
             return gobject.TYPE_PYOBJECT
         elif index == PropertyEditorModel.TOOLTIP_COLUMN:
             return gobject.TYPE_STRING
+        elif index == PropertyEditorModel.ACTIVE_COLUMN:
+            return gobject.TYPE_BOOLEAN
         else:
             return gobject.TYPE_INVALID
 
@@ -126,7 +129,28 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                                                                                                                       flags = glib.markup_escape_text(flags),
                                                                                                                       defval = self._get_default_value(pspec),
                                                                                                                       desc = glib.markup_escape_text(pspec.blurb))
+            elif column == PropertyEditorModel.ACTIVE_COLUMN:
+                return self._is_param_spec_supported(pspec) and \
+                       (pspec.flags & gobject.PARAM_WRITABLE == gobject.PARAM_WRITABLE) and \
+                       (not pspec.flags & gobject.PARAM_CONSTRUCT_ONLY == gobject.PARAM_CONSTRUCT_ONLY)
         return None
+
+
+    def _is_param_spec_supported(self, pspec):
+        return pspec.value_type == gobject.TYPE_CHAR or \
+               pspec.value_type == gobject.TYPE_UCHAR or \
+               pspec.value_type == gobject.TYPE_INT or \
+               pspec.value_type == gobject.TYPE_UINT or \
+               pspec.value_type == gobject.TYPE_LONG or \
+               pspec.value_type == gobject.TYPE_ULONG or \
+               pspec.value_type == gobject.TYPE_INT64 or \
+               pspec.value_type == gobject.TYPE_UINT64 or \
+               pspec.value_type == gobject.TYPE_FLOAT or \
+               pspec.value_type == gobject.TYPE_DOUBLE or \
+               pspec.value_type == gobject.TYPE_BOOLEAN or \
+               pspec.value_type == gobject.TYPE_STRING or \
+               pspec.value_type.is_a(gobject.TYPE_ENUM) or \
+               pspec.value_type.is_a(gobject.TYPE_FLAGS)
 
 
     def _get_default_value(self, pspec):

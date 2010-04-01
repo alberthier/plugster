@@ -2,6 +2,7 @@ import gtk
 import gst
 
 from PropertyEditorModel import *
+from CellRendererPropertyName import *
 from PropertyEditorCellRenderer import *
 
 class PropertyEditorController(gobject.GObject):
@@ -14,8 +15,9 @@ class PropertyEditorController(gobject.GObject):
         self.tree_view.props.model = PropertyEditorModel()
         self.tree_view.props.rules_hint = True
 
-        renderer = gtk.CellRendererText()
+        renderer = CellRendererPropertyName(self.tree_view.get_style())
         column = gtk.TreeViewColumn("Property", renderer,
+                                    active = PropertyEditorModel.ACTIVE_COLUMN,
                                     markup = PropertyEditorModel.PROPERTY_NAME_COLUMN)
         self.tree_view.append_column(column)
 
@@ -24,6 +26,7 @@ class PropertyEditorController(gobject.GObject):
         renderer = PropertyEditorCellRenderer()
         renderer.connect_object('edited', PropertyEditorModel.set_property_value, self.tree_view.props.model)
         column = gtk.TreeViewColumn("Value", renderer,
+                                    active = PropertyEditorModel.ACTIVE_COLUMN,
                                     property_param_spec = PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN,
                                     property_value = PropertyEditorModel.PROPERTY_VALUE_COLUMN)
         self.tree_view.append_column(column)
