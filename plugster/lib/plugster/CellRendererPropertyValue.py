@@ -3,7 +3,7 @@ import gtk
 
 from CellRendererFlags import *
 
-class PropertyEditorCellRenderer(gtk.GenericCellRenderer):
+class CellRendererPropertyValue(gtk.GenericCellRenderer):
 
     __gsignals__ = {
         # edited signal: (path, new_value)

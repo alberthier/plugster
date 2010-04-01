@@ -2,7 +2,7 @@ import xml.etree.cElementTree
 
 from Definitions import *
 
-class XmlExtraDataLoader(object):
+class XmlPipelineDeserializer(object):
 
     def __init__(self):
         object.__init__(self)

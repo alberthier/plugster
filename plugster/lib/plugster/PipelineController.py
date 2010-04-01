@@ -6,7 +6,7 @@ import gst
 
 from ElementData import *
 from PipelineAdapter import *
-from XmlExtraDataLoader import *
+from XmlPipelineDeserializer import *
 from XmlPipelineSerializer import *
 
 class PipelineController(gobject.GObject):
@@ -40,7 +40,7 @@ class PipelineController(gobject.GObject):
         self.reset()
         self.filepath = filepath
         if self.filepath != None:
-            data_loader = XmlExtraDataLoader()
+            data_loader = XmlPipelineDeserializer()
             data_loader.load(self.filepath)
             xml = gst.XML()
             xml.connect('object-loaded', ElementData.load, data_loader)
