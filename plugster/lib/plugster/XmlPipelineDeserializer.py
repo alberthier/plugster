@@ -1,6 +1,9 @@
 import xml.etree.cElementTree
 
-from Definitions import *
+import gst
+
+import Definitions
+from ElementData import *
 
 class XmlPipelineDeserializer(object):
 
@@ -14,11 +17,11 @@ class XmlPipelineDeserializer(object):
 
 
     def _gst(self, tag):
-        return "{" + GST_XML_NAMESPACE + "}" + tag
+        return "{" + Definitions.GST_XML_NAMESPACE + "}" + tag
 
 
     def _plugster(self, tag):
-        return "{" + PLUGSTER_XML_NAMESPACE + "}" + tag
+        return "{" + Definitions.PLUGSTER_XML_NAMESPACE + "}" + tag
 
 
     def load(self, filepath):
@@ -27,10 +30,18 @@ class XmlPipelineDeserializer(object):
         root = doc.getroot()
         if root.tag == "gstreamer":
             elt = root.find(self._gst("element"))
-            self.parse_element(elt, True)
+            self._parse_element(elt, True)
+
+        gst_xml = gst.XML()
+        gst_xml.connect('object-loaded', self._load_plugster_data)
+        if gst_xml.parse_file(filepath, Definitions.ROOT_PIPELINE_NAME):
+            elements = gst_xml.get_topelements()
+            if len(elements) > 0:
+                return elements[0]
+        return None
 
 
-    def parse_element(self, elt, root):
+    def _parse_element(self, elt, root):
         if not root:
             name_node = elt.find(self._gst("name"))
             data_node = elt.find(self._plugster("data"))
@@ -42,11 +53,13 @@ class XmlPipelineDeserializer(object):
         children_node = elt.find(self._gst("children"))
         if children_node != None:
             for child in children_node.getchildren():
-                self.parse_element(child, False)
+                self._parse_element(child, False)
 
 
-    def get_data(self, name):
+    def _load_plugster_data(self, xml_node, gst_object, user_data):
+        name = gst_object.get_name()
         if name in self._data:
-            return self._data[name]
-        else:
-            return None
+            xml_data = self._data[name]
+            data = ElementData(gst_object)
+            data.x = xml_data[0]
+            data.y = xml_data[1]

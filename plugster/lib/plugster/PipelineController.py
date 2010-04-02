@@ -4,15 +4,13 @@ import gobject
 import gtk
 import gst
 
+import Definitions
 from ElementData import *
 from PipelineAdapter import *
 from XmlPipelineDeserializer import *
 from XmlPipelineSerializer import *
 
 class PipelineController(gobject.GObject):
-
-    ROOT_PIPELINE_NAME = "plugster_root"
-
 
     __gsignals__ = {
         'pipeline-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gst.Pipeline,)),
@@ -29,7 +27,7 @@ class PipelineController(gobject.GObject):
 
     def reset(self):
         self.filepath = None
-        self._configure_new_root_pipeline(gst.Pipeline(PipelineController.ROOT_PIPELINE_NAME + "_new"))
+        self._configure_new_root_pipeline(gst.Pipeline(Definitions.ROOT_PIPELINE_NAME + "_new"))
 
 
     def open(self):
@@ -38,19 +36,13 @@ class PipelineController(gobject.GObject):
 
     def load(self, filepath):
         self.reset()
-        self.filepath = filepath
-        if self.filepath != None:
+        if filepath != None:
             data_loader = XmlPipelineDeserializer()
-            data_loader.load(self.filepath)
-            xml = gst.XML()
-            xml.connect('object-loaded', ElementData.load, data_loader)
-            error = True
-            if xml.parse_file(self.filepath, PipelineController.ROOT_PIPELINE_NAME):
-                elements = xml.get_topelements()
-                if len(elements) > 0:
-                    self._configure_new_root_pipeline(elements[0])
-                    error = False
-            if error:
+            pipeline = data_loader.load(filepath)
+            if pipeline != None:
+                self.filepath = filepath
+                self._configure_new_root_pipeline(pipeline)
+            else:
                 self._display_error_message("Unable to open the file '{0}'".format(self.filepath))
                 self.filepath = None
 
