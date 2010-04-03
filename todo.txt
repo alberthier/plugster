@@ -1,5 +1,4 @@
 - Python 3 compatibility
-- Element factories filter
 - Element description view
 - use GtkInfoBar for error / Warnings
 - GStreamer / GLib error log handler
