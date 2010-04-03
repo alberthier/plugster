@@ -13,6 +13,9 @@ class ElementAdapter(AbstractElementAdapter):
     def __init__(self, gst_element, layer):
         AbstractElementAdapter.__init__(self, gst_element, layer)
 
+        self._on_end_drag_id = None
+        self._on_drag_move_id = None
+
         factory = self.gst_object.get_factory()
         self.props.tooltip = "<b>{0}</b>\n{1}".format(glib.markup_escape_text(factory.get_longname()), glib.markup_escape_text(factory.get_description()))
 
@@ -117,19 +120,20 @@ class ElementAdapter(AbstractElementAdapter):
 
 
     def _on_start_drag(self, adapter, widget, event):
-        if event.button == 1: # Left button
-            if event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.BUTTON1_MASK):
-                self.get_selection().toggle(self.gst_object)
-            else:
-                self.get_selection().select(self.gst_object)
-                self.raise_(None)
+        if self._on_end_drag_id == None and self._on_drag_move_id == None:
+            if event.button == 1: # Left button
+                if event.state & (gtk.gdk.CONTROL_MASK | gtk.gdk.BUTTON1_MASK):
+                    self.get_selection().toggle(self.gst_object)
+                else:
+                    self.get_selection().select(self.gst_object)
+                    self.raise_(None)
 
-            self._on_end_drag_id = adapter.connect('button-release-event', self._on_end_drag)
-            self._on_drag_move_id = adapter.connect('motion-notify-event', self._on_drag_move)
-            self._drag_x = event.x_root
-            self._drag_y = event.y_root
-            self._global_dx = 0
-            self._global_dy = 0
+                self._on_end_drag_id = adapter.connect('button-release-event', self._on_end_drag)
+                self._on_drag_move_id = adapter.connect('motion-notify-event', self._on_drag_move)
+                self._drag_x = event.x_root
+                self._drag_y = event.y_root
+                self._global_dx = 0
+                self._global_dy = 0
         return False
 
 
@@ -148,6 +152,8 @@ class ElementAdapter(AbstractElementAdapter):
     def _on_end_drag(self, adapter, widget, event):
         adapter.disconnect(self._on_end_drag_id)
         adapter.disconnect(self._on_drag_move_id)
+        self._on_end_drag_id = None
+        self._on_drag_move_id = None
         dx = PipelineCanvas.place_coord_on_grid(self._global_dx)
         dy = PipelineCanvas.place_coord_on_grid(self._global_dy)
         adapter.translate(dx, dy)
