@@ -71,6 +71,11 @@ class XmlPipelineSerializer(object):
         if isinstance(value, gobject.GFlags) or \
            isinstance(value, gobject.GEnum):
             return str(int(value))
+        elif isinstance(value, bool):
+            if value:
+                return "true"
+            else:
+                return "false"
         else:
             return str(value)
 
