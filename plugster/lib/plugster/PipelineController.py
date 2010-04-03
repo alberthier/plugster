@@ -19,14 +19,14 @@ class PipelineController(gobject.GObject):
 
     def __init__(self, root_widget, canvas):
         gobject.GObject.__init__(self)
-        self.root_widget = root_widget
-        self.canvas = canvas
-        self.filepath = None
-        self.root_pipeline = None
+        self._root_widget = root_widget
+        self._canvas = canvas
+        self._filepath = None
+        self._root_pipeline = None
 
 
     def reset(self):
-        self.filepath = None
+        self._filepath = None
         self._configure_new_root_pipeline(gst.Pipeline(Definitions.ROOT_PIPELINE_NAME + "_new"))
 
 
@@ -40,28 +40,28 @@ class PipelineController(gobject.GObject):
             data_loader = XmlPipelineDeserializer()
             pipeline = data_loader.load(filepath)
             if pipeline != None:
-                self.filepath = filepath
+                self._filepath = filepath
                 self._configure_new_root_pipeline(pipeline)
             else:
-                self._display_error_message("Unable to open the file '{0}'".format(self.filepath))
-                self.filepath = None
+                self._display_error_message("Unable to open the file '{0}'".format(self._filepath))
+                self._filepath = None
 
 
     def close(self):
-        self.filepath = None
-        self.root_pipeline = None
+        self._filepath = None
+        self._root_pipeline = None
 
 
     def save(self):
-        if self.filepath == None:
+        if self._filepath == None:
             self.save_as()
         else:
             try:
-                serializer = XmlPipelineSerializer(self.root_pipeline)
-                serializer.save(self.filepath)
+                serializer = XmlPipelineSerializer(self._root_pipeline)
+                serializer.save(self._filepath)
             except Exception as e:
-                self._display_error_message("Unable to write the file '{0}'".format(self.filepath))
-                self.filepath = None
+                self._display_error_message("Unable to write the file '{0}'".format(self._filepath))
+                self._filepath = None
 
 
     def save_as(self):
@@ -69,7 +69,7 @@ class PipelineController(gobject.GObject):
         if path != None:
             if not os.path.splitext(path)[1].lower() in [ ".gst", ".xml" ]:
                 path += ".gst"
-            self.filepath = path
+            self._filepath = path
             self.save()
 
 
@@ -79,7 +79,7 @@ class PipelineController(gobject.GObject):
         else:
             icon = gtk.STOCK_OPEN
 
-        dialog = gtk.FileChooserDialog(text, self.root_widget, action, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, icon, gtk.RESPONSE_ACCEPT))
+        dialog = gtk.FileChooserDialog(text, self._root_widget, action, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, icon, gtk.RESPONSE_ACCEPT))
         dialog.set_select_multiple(False)
         filter = gtk.FileFilter()
         filter.add_mime_type("application/xml")
@@ -93,14 +93,14 @@ class PipelineController(gobject.GObject):
 
     def _configure_new_root_pipeline(self, element):
         if isinstance(element, gst.Pipeline):
-            self.root_pipeline = element
-            ElementData(self.root_pipeline)
-            Selection(self.root_pipeline)
-            PipelineAdapter(self.root_pipeline, self.canvas)
-            self.emit("pipeline-changed", self.root_pipeline)
+            self._root_pipeline = element
+            ElementData(self._root_pipeline)
+            Selection(self._root_pipeline)
+            PipelineAdapter(self._root_pipeline, self._canvas)
+            self.emit("pipeline-changed", self._root_pipeline)
 
 
     def _display_error_message(self, message):
-        dialog = gtk.MessageDialog(self.root_widget, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, message)
+        dialog = gtk.MessageDialog(self._root_widget, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, message)
         dialog.run()
         dialog.destroy()

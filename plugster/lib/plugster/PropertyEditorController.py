@@ -10,7 +10,7 @@ class PropertyEditorController(gobject.GObject):
     def __init__(self):
         gobject.GObject.__init__(self)
 
-        self.selection = None
+        self._selection = None
         self.tree_view = gtk.TreeView()
         self.tree_view.props.model = PropertyEditorModel()
         self.tree_view.props.rules_hint = True

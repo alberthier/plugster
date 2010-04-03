@@ -14,30 +14,30 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
     def __init__(self):
         gtk.GenericTreeModel.__init__(self)
-        self.objects = []
-        self.param_specs = []
+        self._objects = []
+        self._param_specs = []
 
 
     def set_objects(self, objects):
-        index = len(self.param_specs)
-        for param_spec in reversed(self.param_specs):
+        index = len(self._param_specs)
+        for param_spec in reversed(self._param_specs):
             index -= 1
             self.row_deleted(( index, ))
 
-        self.objects = objects
-        self.param_specs = []
-        for inedx, obj in enumerate(self.objects):
+        self._objects = objects
+        self._param_specs = []
+        for inedx, obj in enumerate(self._objects):
             if index == 0:
-                self.param_specs = list(obj.__class__.props)
+                self._param_specs = list(obj.__class__.props)
             else:
                 toremove = []
-                for pspec in self.param_specs:
+                for pspec in self._param_specs:
                     if not pspec in obj.__class__.props:
                         toremove.append(pspec)
                 for pspec in toremove:
-                    self.param_specs.remove(pspec)
+                    self._param_specs.remove(pspec)
 
-        for index, pspec in enumerate(self.param_specs):
+        for index, pspec in enumerate(self._param_specs):
             path = ( index, )
             self.row_inserted(path, self.get_iter(path))
 
@@ -46,7 +46,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
         iter = self.get_iter(path)
         pspec = self.get_value(iter, PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN)
         if pspec.value_type.is_a(gobject.TYPE_FLAGS):
-            for obj in self.objects:
+            for obj in self._objects:
                 val = obj.get_property(pspec.name)
                 for (index, (mask, flag)) in enumerate(pspec.flags_class.__flags_values__.iteritems()):
                     if new_val[index] != None:
@@ -58,7 +58,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                                 val += mask
                 obj.set_property(pspec.name, val)
         else:
-            for obj in self.objects:
+            for obj in self._objects:
                 obj.set_property(pspec.name, new_val)
 
         self.row_changed(path, iter)
@@ -88,7 +88,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
 
     def on_get_iter(self, path):
-        if len(path) == 1 and path[0] < len(self.param_specs):
+        if len(path) == 1 and path[0] < len(self._param_specs):
             return self.create_tree_iter(path[0])
         else:
             return None
@@ -100,8 +100,8 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
     def on_get_value(self, iter, column):
         index = self.get_user_data(iter)
-        if index >= 0 and index < len(self.param_specs):
-            pspec = self.param_specs[index]
+        if index >= 0 and index < len(self._param_specs):
+            pspec = self._param_specs[index]
             if column == PropertyEditorModel.PROPERTY_NAME_COLUMN:
                 if (len(pspec.nick) == 0):
                     prop_name = pspec.name
@@ -166,7 +166,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
     def on_iter_next(self, iter):
         if iter != None:
             index = self.get_user_data(iter)
-            if index >= 0 and index < len(self.param_specs) - 1:
+            if index >= 0 and index < len(self._param_specs) - 1:
                 return self.create_tree_iter(index + 1)
             else:
                 return None
@@ -176,7 +176,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
     def on_iter_children(self, parent):
         if parent == None:
-            if (len(self.param_specs) != 0):
+            if (len(self._param_specs) != 0):
                 return self.create_tree_iter(0)
             else:
                 return None
@@ -190,13 +190,13 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
     def on_iter_n_children(self, iter):
         if iter == None:
-            return len(self.param_specs)
+            return len(self._param_specs)
         else:
             return 0
 
 
     def on_iter_nth_child(self, parent, n):
-        if parent == None and n >= 0 and n < len(self.param_specs):
+        if parent == None and n >= 0 and n < len(self._param_specs):
             return self.create_tree_iter(n)
         else:
             return None
@@ -210,7 +210,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
         val = None
         if param_spec.flags & gobject.PARAM_READABLE:
             if param_spec.value_type.is_a(gobject.TYPE_FLAGS):
-                for index, obj in enumerate(self.objects):
+                for index, obj in enumerate(self._objects):
                     if index == 0:
                         val = []
                         flags = obj.get_property(param_spec.name)
@@ -228,7 +228,7 @@ class PropertyEditorModel(gtk.GenericTreeModel):
                                 elif flags & mask == 0 and val[index] != 0:
                                     val[index] = None
             else:
-                for index, obj in enumerate(self.objects):
+                for index, obj in enumerate(self._objects):
                     if index == 0:
                         val = obj.get_property(param_spec.name)
                     else:

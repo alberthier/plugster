@@ -42,7 +42,7 @@ class CellRendererFlags(gtk.CellRendererText):
                         text += val.first_value_name
                 else:
                     text = "---"
-                    break;
+                    break
             self.props.text = text
         else:
             raise AttributeError("unknown property {0}".format(property.name))

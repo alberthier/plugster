@@ -14,10 +14,10 @@ class Selection(gobject.GObject):
 
     def __init__(self, pipeline):
         gobject.GObject.__init__(self)
-        self.pipeline = weakref.proxy(pipeline)
+        self._pipeline = weakref.proxy(pipeline)
         self.selected_elements = []
-        self.pipeline.plugster_selection = self
-        self.pipeline.connect('element-removed', self._on_element_removed)
+        self._pipeline.plugster_selection = self
+        self._pipeline.connect('element-removed', self._on_element_removed)
 
 
     def add(self, element):

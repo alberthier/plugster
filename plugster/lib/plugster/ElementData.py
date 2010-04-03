@@ -5,13 +5,6 @@ import gst
 
 class ElementData(gobject.GObject):
 
-    XML_NS           = "plugster";
-    XML_COORDS_TAG   = "coords";
-    XML_HREF         = "http://gstreamer.net/plugster/1.0/";
-    XML_COORDS_X_TAG = "x";
-    XML_COORDS_Y_TAG = "y";
-
-
     __gsignals__ = {
         'selected-state-changed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
     }

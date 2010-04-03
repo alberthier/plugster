@@ -9,7 +9,4 @@ Folders:
 - adapters
 - model
 
-Review:
-- non public membres prefixed with '_'
-
 Bugs:

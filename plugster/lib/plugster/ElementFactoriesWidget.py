@@ -39,7 +39,7 @@ class ElementFactoriesWidget(gtk.VBox):
 
         renderer = gtk.CellRendererText()
         column.pack_start(renderer)
-        column.add_attribute(renderer, 'text', ElementFactoriesModel.NAME_COLUMN);
+        column.add_attribute(renderer, 'text', ElementFactoriesModel.NAME_COLUMN)
 
         self._treeview.append_column(column)
 

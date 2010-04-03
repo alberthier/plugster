@@ -12,19 +12,19 @@ class PipelineAdapter(AbstractElementAdapter):
 
     def __init__(self, pipeline, canvas):
         AbstractElementAdapter.__init__(self, pipeline, canvas.get_root_item())
-        self.elements_layer = goocanvas.Group(parent = self)
-        self.links_layer = goocanvas.Group(parent = self)
+        self._elements_layer = goocanvas.Group(parent = self)
+        self._links_layer = goocanvas.Group(parent = self)
 
         pipeline.connect('element-added', self._on_element_added)
-        self.on_drag_data_received_id = canvas.connect('drag-data-received', self._create_new_element)
-        self.on_button_press_event_id = canvas.connect('button-press-event', self._on_button_pressed)
+        self._on_drag_data_received_id = canvas.connect('drag-data-received', self._create_new_element)
+        self._on_button_press_event_id = canvas.connect('button-press-event', self._on_button_pressed)
 
         self._on_end_drag_id = None
         self._on_drag_move_id = None
-        self._drag_x = 0;
-        self._drag_y = 0;
-        self._global_dx = 0;
-        self._global_dy = 0;
+        self._drag_x = 0
+        self._drag_y = 0
+        self._global_dx = 0
+        self._global_dy = 0
 
         for child in self.gst_object:
             self._on_element_added(self.gst_object, child)
@@ -32,8 +32,8 @@ class PipelineAdapter(AbstractElementAdapter):
 
     def _on_object_deleted(self, gst_object):
         canvas = self.get_canvas()
-        canvas.disconnect(self.on_drag_data_received_id)
-        canvas.disconnect(self.on_button_press_event_id)
+        canvas.disconnect(self._on_drag_data_received_id)
+        canvas.disconnect(self._on_button_press_event_id)
         AbstractElementAdapter._on_object_deleted(self, gst_object)
 
 
@@ -57,7 +57,7 @@ class PipelineAdapter(AbstractElementAdapter):
 
 
     def _on_element_added(self, pipeline, element):
-        ElementAdapter(element, self.elements_layer)
+        ElementAdapter(element, self._elements_layer)
 
 
     def _on_button_pressed(self, widget, event):

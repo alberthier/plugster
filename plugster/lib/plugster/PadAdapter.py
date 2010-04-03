@@ -77,7 +77,7 @@ class PadAdapter(AbstractAdapter):
         if self.gst_object.is_linked():
             return Definitions.PadAdapter.LINKED_COLOR
         else:
-            style = self.get_canvas().get_style();
+            style = self.get_canvas().get_style()
             return style.bg[gtk.STATE_NORMAL]
 
 

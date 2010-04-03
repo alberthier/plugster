@@ -113,7 +113,7 @@ class CellRendererPropertyValue(gtk.GenericCellRenderer):
             self._update_renderer_text_value(renderer)
 
         self._renderers[pspec] = renderer
-        return renderer;
+        return renderer
 
 
     def _create_renderer_spin(self, widget, digits, lower, upper):
