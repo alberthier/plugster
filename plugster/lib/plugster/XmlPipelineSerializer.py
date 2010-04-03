@@ -17,6 +17,7 @@ class XmlPipelineSerializer(object):
         self._doc.documentElement.setAttribute("xmlns:gst", GST_XML_NAMESPACE)
         self._doc.documentElement.setAttribute("xmlns:plugster", PLUGSTER_XML_NAMESPACE)
         self.create_element_node(self._doc.documentElement, self._pipeline, True)
+        self._indent(self._doc.documentElement)
         f = open(filepath, "w")
         f.write(self._doc.toxml(encoding = "UTF-8"))
         f.close()
@@ -84,3 +85,25 @@ class XmlPipelineSerializer(object):
 
     def _set_element_text(self, dom_element, text):
         return dom_element.appendChild(self._doc.createTextNode(text))
+
+
+    def _indent(self, element, indent = "\n"):
+        if element.nodeType == xml.dom.Node.ELEMENT_NODE and \
+           (element.tagName == "gstreamer" or \
+            element.tagName == "gst:element" or \
+            element.tagName == "gst:children" or \
+            element.tagName == "gst:param" or \
+            element.tagName == "plugster:data"):
+            child_indent = indent + "  "
+            index = 0
+            while index < len(element.childNodes):
+                child = element.childNodes[index]
+                text = self._doc.createTextNode(child_indent)
+                element.insertBefore(text, child)
+                index += 2
+                self._indent(child, child_indent)
+                if index == len(element.childNodes):
+                    text = self._doc.createTextNode(indent)
+                    element.appendChild(text)
+                    index += 1
+
