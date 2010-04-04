@@ -16,9 +16,12 @@ class ElementFactoriesModel(gtk.TreeStore):
         self.set_sort_func(ElementFactoriesModel.NAME_COLUMN, self._compare_items, None)
         self.set_sort_column_id(ElementFactoriesModel.NAME_COLUMN, gtk.SORT_ASCENDING)
         registry = gst.registry_get_default()
-        for factory in registry.get_feature_list(gst.ElementFactory):
-            parent = self._get_parent_iter(factory.get_klass().split("/"))
-            self.append(parent, (factory.get_longname(), factory, gtk.STOCK_CONNECT, glib.markup_escape_text(factory.get_description())))
+        for plugin in registry.get_plugin_list():
+            for feature in registry.get_feature_list_by_plugin(plugin.get_name()):
+                if isinstance(feature, gst.ElementFactory):
+                    feature.plugin = plugin
+                    parent = self._get_parent_iter(feature.get_klass().split("/"))
+                    self.append(parent, (feature.get_longname(), feature, gtk.STOCK_CONNECT, glib.markup_escape_text(feature.get_description())))
 
 
     def _get_parent_iter(self, sections):

@@ -7,6 +7,7 @@ from ElementFactoriesWidget import *
 from PipelineController import *
 from PipelineCanvas import *
 from PropertyEditorController import *
+from ElementDetailsController import *
 
 class MainWindowController(gobject.GObject):
 
@@ -25,15 +26,18 @@ class MainWindowController(gobject.GObject):
                 elements_widget_container = builder.get_object("elements_widget_container")
                 pipeline_canvas_scrollwindow = builder.get_object("pipeline_canvas_scrollwindow")
                 property_editor_scrollwindow = builder.get_object("property_editor_scrollwindow")
+                elements_details_view = builder.get_object("elements_details_view")
 
                 elements_widget_container.add(ElementFactoriesWidget())
                 canvas = PipelineCanvas()
                 pipeline_canvas_scrollwindow.add(canvas)
 
+                self._element_details_controller = ElementDetailsController(elements_details_view)
                 self._pipeline_controller = PipelineController(mainwindow, canvas)
                 self._property_editor_controller = PropertyEditorController()
                 property_editor_scrollwindow.add(self._property_editor_controller.tree_view)
                 self._pipeline_controller.connect('pipeline-changed', self._property_editor_controller.on_pipeline_changed)
+                self._pipeline_controller.connect('pipeline-changed', self._element_details_controller.on_pipeline_changed)
 
                 action = builder.get_object("action_new")
                 action.connect_object('activate', PipelineController.reset, self._pipeline_controller)

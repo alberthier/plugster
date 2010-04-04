@@ -42,10 +42,6 @@ class PadAdapter(AbstractAdapter):
         tooltip = "<b>Capabilities</b>"
         for structure in self.gst_object.get_caps():
             tooltip += u"\n    \u2022 " + glib.markup_escape_text(structure.get_name())
-            for i in xrange(structure.n_fields()):
-                name = structure.nth_field_name(i)
-                val = self._get_structure_value_string(structure[name])
-                tooltip += u"\n        \u2022 {0} = {1}".format(glib.markup_escape_text(name), glib.markup_escape_text(val))
 
         self.props.tooltip = tooltip
         self.background.props.tooltip = tooltip
@@ -79,25 +75,3 @@ class PadAdapter(AbstractAdapter):
         else:
             style = self.get_canvas().get_style()
             return style.bg[gtk.STATE_NORMAL]
-
-
-    def _get_structure_value_string(self, value):
-        result = None
-        if isinstance(value, gst.Fourcc):
-            result = value.fourcc
-        elif isinstance(value, gst.IntRange) or isinstance(value, gst.DoubleRange):
-            result = "[ {0}, {1} ]".format(value.low, value.high)
-        elif isinstance(value, gst.FractionRange):
-            result = "[ {0}/{1}, {2}/{3} ]".format(value.low.num, value.low.denom, value.high.num, value.high.denom)
-        elif isinstance(value, gst.Fraction):
-            result = "[ {0}/{1} ]".format(value.num, value.denom)
-        elif isinstance(value, list):
-            result = "{ "
-            for index, v in enumerate(value):
-                if index != 0:
-                    result += ", "
-                result += self._get_structure_value_string(v)
-            result += " }"
-        else:
-            result = str(value)
-        return glib.markup_escape_text(result)

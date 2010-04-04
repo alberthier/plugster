@@ -180,8 +180,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_new">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_new</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton1</property>
                 <property name="use_underline">True</property>
               </object>
@@ -193,8 +193,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_open">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_open</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton</property>
               </object>
               <packing>
@@ -205,8 +205,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_save">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_save</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton2</property>
                 <property name="use_underline">True</property>
               </object>
@@ -227,8 +227,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_undo">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_undo</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton4</property>
                 <property name="use_underline">True</property>
               </object>
@@ -240,8 +240,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_redo">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_redo</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton5</property>
                 <property name="use_underline">True</property>
               </object>
@@ -262,8 +262,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_cut">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_cut</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton7</property>
                 <property name="use_underline">True</property>
               </object>
@@ -275,8 +275,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_copy">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_copy</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton8</property>
                 <property name="use_underline">True</property>
               </object>
@@ -288,8 +288,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_paste">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">action_paste</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton9</property>
                 <property name="use_underline">True</property>
               </object>
@@ -342,13 +342,43 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow" id="property_editor_scrollwindow">
+                  <object class="GtkVPaned" id="vpaned1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">automatic</property>
-                    <property name="vscrollbar_policy">automatic</property>
+                    <property name="orientation">vertical</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkScrolledWindow" id="property_editor_scrollwindow">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="resize">True</property>
+                        <property name="shrink">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="elements_details_scrollwindow">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTextView" id="elements_details_view">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="resize">True</property>
+                        <property name="shrink">True</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
