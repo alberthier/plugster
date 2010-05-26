@@ -47,13 +47,10 @@ class PipelineAdapter(AbstractElementAdapter):
             else:
                 n = 1
             PipelineAdapter.element_numbers[factory_name] = n
-            elt = gst.element_factory_make(factory_name, "{0}{1}".format(factory_name, n))
-            data = ElementData(elt)
-            data.x = x + PipelineCanvas.place_coord_on_grid(x)
-            data.y = y + PipelineCanvas.place_coord_on_grid(y)
-            self.gst_object.add(elt)
-            # Use data.element to use the weak ref in the selection
-            self.gst_object.plugster_selection.select(data.element)
+            element_name = "{0}{1}".format(factory_name, n)
+            grid_x = x + PipelineCanvas.place_coord_on_grid(x)
+            grid_y = y + PipelineCanvas.place_coord_on_grid(y)
+            self.gst_object.plugster_pipeline_controller.add_element(factory_name, element_name, grid_x, grid_y)
 
 
     def _on_element_added(self, pipeline, element):

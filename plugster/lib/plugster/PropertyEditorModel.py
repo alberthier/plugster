@@ -43,25 +43,16 @@ class PropertyEditorModel(gtk.GenericTreeModel):
 
 
     def set_property_value(self, path, new_val):
-        iter = self.get_iter(path)
-        pspec = self.get_value(iter, PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN)
-        if pspec.value_type.is_a(gobject.TYPE_FLAGS):
-            for obj in self._objects:
-                val = obj.get_property(pspec.name)
-                for (index, (mask, flag)) in enumerate(pspec.flags_class.__flags_values__.iteritems()):
-                    if new_val[index] != None:
-                        if new_val[index] == 0:
-                            if val & mask == mask:
-                                val -= mask
-                        else:
-                            if val & mask == 0:
-                                val += mask
-                obj.set_property(pspec.name, val)
-        else:
-            for obj in self._objects:
-                obj.set_property(pspec.name, new_val)
+        if len(self._objects) > 0:
+            first_object = self._objects[0]
+            pipeline_controller = first_object.plugster_data.get_pipeline().plugster_pipeline_controller
 
-        self.row_changed(path, iter)
+            iter = self.get_iter(path)
+            pspec = self.get_value(iter, PropertyEditorModel.PROPERTY_PARAM_SPEC_COLUMN)
+
+            pipeline_controller.set_property(self._objects, pspec, new_val)
+
+            self.row_changed(path, iter)
 
 
     def on_get_flags(self):

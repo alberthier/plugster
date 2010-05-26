@@ -9,6 +9,9 @@ from ElementData import *
 from PipelineAdapter import *
 from XmlPipelineDeserializer import *
 from XmlPipelineSerializer import *
+from AddElementCommand import *
+from RemoveElementsCommand import *
+from SetPropertyCommand import *
 
 class PipelineController(gobject.GObject):
 
@@ -92,15 +95,38 @@ class PipelineController(gobject.GObject):
 
 
     def _configure_new_root_pipeline(self, element):
+        if self._root_pipeline:
+            self._root_pipeline.plugster_selection.clear()
+
         if isinstance(element, gst.Pipeline):
             self._root_pipeline = element
             ElementData(self._root_pipeline)
             Selection(self._root_pipeline)
             PipelineAdapter(self._root_pipeline, self._canvas)
-            self.emit("pipeline-changed", self._root_pipeline)
+            self._root_pipeline.plugster_pipeline_controller = self
+            self.emit('pipeline-changed', self._root_pipeline)
 
 
     def _display_error_message(self, message):
         dialog = gtk.MessageDialog(self._root_widget, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, message)
         dialog.run()
         dialog.destroy()
+
+
+    def delete_selection(self):
+        self.remove_elements(self._root_pipeline.plugster_selection.selected_elements)
+
+
+    def add_element(self, factory_name, element_name, x, y):
+        cmd = AddElementCommand(self._root_pipeline, factory_name, element_name, x, y)
+        cmd.do()
+
+
+    def remove_elements(self, elements):
+        cmd = RemoveElementsCommand(self._root_pipeline, elements)
+        cmd.do()
+
+
+    def set_property(self, elements, property_param_spec, property_value):
+        cmd = SetPropertyCommand(self._root_pipeline, elements, property_param_spec, property_value)
+        cmd.do()

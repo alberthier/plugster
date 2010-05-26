@@ -21,17 +21,18 @@ class Selection(gobject.GObject):
 
 
     def add(self, element):
-        if not element in self.selected_elements:
+        if not self.contains(element):
             self.selected_elements.append(element)
             element.plugster_data.emit('selected-state-changed')
             self.emit('selection-changed')
 
 
     def remove(self, element):
-        if element in self.selected_elements:
-            self.selected_elements.remove(element)
-            element.plugster_data.emit('selected-state-changed')
-            self.emit('selection-changed')
+        for elt in list(self.selected_elements):
+            if elt.get_name() == element.get_name():
+                self.selected_elements.remove(elt)
+                element.plugster_data.emit('selected-state-changed')
+                self.emit('selection-changed')
 
 
     def clear(self):
@@ -48,14 +49,16 @@ class Selection(gobject.GObject):
 
 
     def toggle(self, element):
-        if element in self.selected_elements:
+        if self.contains(element):
             self.remove(element)
         else:
             self.add(element)
 
 
     def contains(self, element):
-        return element in self.selected_elements
+        for elt in self.selected_elements:
+            if elt.get_name() == element.get_name():
+                return True
 
 
     def _on_element_removed(self, pipeline, element):

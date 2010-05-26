@@ -117,7 +117,7 @@ class MainWindowController(gobject.GObject):
 
 
     def delete(self, object):
-        print("delete")
+        self._pipeline_controller.delete_selection()
 
 
     def about(self, object):
