@@ -334,7 +334,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkHPaned" id="hpaned2">
+              <object class="GtkVPaned" id="vpaned1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
@@ -353,7 +353,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVPaned" id="vpaned1">
+                  <object class="GtkHPaned" id="hpaned2">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
@@ -382,6 +382,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="editable">False</property>
+                            <property name="left_margin">5</property>
+                            <property name="right_margin">5</property>
                           </object>
                         </child>
                       </object>
