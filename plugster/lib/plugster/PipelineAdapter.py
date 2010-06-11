@@ -12,8 +12,8 @@ class PipelineAdapter(AbstractElementAdapter):
 
     def __init__(self, pipeline, canvas):
         AbstractElementAdapter.__init__(self, pipeline, canvas.get_root_item())
-        self._elements_layer = goocanvas.Group(parent = self)
-        self._links_layer = goocanvas.Group(parent = self)
+        self.elements_layer = goocanvas.Group(parent = self)
+        self.links_layer = goocanvas.Group(parent = self)
 
         pipeline.connect('element-added', self._on_element_added)
         self._on_drag_data_received_id = canvas.connect('drag-data-received', self._create_new_element)
@@ -54,7 +54,7 @@ class PipelineAdapter(AbstractElementAdapter):
 
 
     def _on_element_added(self, pipeline, element):
-        ElementAdapter(element, self._elements_layer)
+        ElementAdapter(element, self.elements_layer)
 
 
     def _on_button_pressed(self, widget, event):

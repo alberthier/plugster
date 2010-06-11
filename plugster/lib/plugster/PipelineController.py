@@ -106,6 +106,7 @@ class PipelineController(gobject.GObject):
             Selection(self._root_pipeline)
             PipelineAdapter(self._root_pipeline, self._canvas)
             self._root_pipeline.plugster_pipeline_controller = self
+            self._root_pipeline.get_bus().add_watch(self._on_bus_message)
             self.emit('pipeline-changed', self._root_pipeline)
 
 
@@ -120,15 +121,26 @@ class PipelineController(gobject.GObject):
 
 
     def add_element(self, factory_name, element_name, x, y):
-        cmd = AddElementCommand(self._root_pipeline, factory_name, element_name, x, y)
-        cmd.do()
+        self._execute_command(AddElementCommand(self._root_pipeline, factory_name, element_name, x, y))
 
 
     def remove_elements(self, elements):
-        cmd = RemoveElementsCommand(self._root_pipeline, elements)
-        cmd.do()
+        self._execute_command(RemoveElementsCommand(self._root_pipeline, elements))
 
 
     def set_property(self, elements, property_param_spec, property_value):
-        cmd = SetPropertyCommand(self._root_pipeline, elements, property_param_spec, property_value)
-        cmd.do()
+        self._execute_command(SetPropertyCommand(self._root_pipeline, elements, property_param_spec, property_value))
+
+
+    def _execute_command(self, command):
+        self._root_pipeline.set_state(gst.STATE_NULL)
+        command.do()
+        self._root_pipeline.set_state(gst.STATE_READY)
+
+
+    def _on_bus_message(self, bus, message):
+        print "Bus message"
+        if message.type == gst.MESSAGE_STATE_CHANGED:
+            print "    State changed: {0}".format(self._root_pipeline.get_state())
+            self.emit('pipeline-changed', self._root_pipeline)
+        return True
