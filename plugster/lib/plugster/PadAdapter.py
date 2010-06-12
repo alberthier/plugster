@@ -21,29 +21,29 @@ class PadAdapter(AbstractAdapter):
 
         style = self.get_canvas().get_style()
 
-        self.background = goocanvas.Path(parent = elt_adapter,
+        self._background = goocanvas.Path(parent = self,
                                          data = "m 0 0",
                                          line_width = 0.0)
-        self.background.lower(self)
 
-        title = goocanvas.Text(parent = self,
+        self._base_group = goocanvas.Group(parent = self)
+
+        title = goocanvas.Text(parent = self._base_group,
                                text = self.gst_object.get_name())
-        self._connector = goocanvas.Ellipse(parent = self,
+        self._connector = goocanvas.Ellipse(parent = self._base_group,
                                            radius_x = PadAdapter.CONNECTOR_RADIUS,
                                            radius_y = PadAdapter.CONNECTOR_RADIUS,
                                            fill_color = self._get_connector_color(),
                                            line_width = 2.0,
                                            stroke_color = style.dark[gtk.STATE_NORMAL])
 
-        self.background.connect('button-press-event', self._on_start_drag)
         self.connect('button-press-event', self._on_start_drag)
 
         if self.gst_object.get_direction() == gst.PAD_SINK:
-            self.background.props.fill_color = PadAdapter.SINK_COLOR
+            self._background.props.fill_color = PadAdapter.SINK_COLOR
             title.translate(PadAdapter.CONNECTOR_RADIUS / 2 + AbstractAdapter.DOUBLE_PADDING, 0.0)
             self._connector.translate(0.0, AbstractAdapter.font_height / 2)
         else:
-            self.background.props.fill_color = PadAdapter.SRC_COLOR
+            self._background.props.fill_color = PadAdapter.SRC_COLOR
             bounds = title.get_bounds()
             self._connector.translate(bounds.x2 - bounds.x1 + PadAdapter.CONNECTOR_RADIUS / 2 + AbstractAdapter.DOUBLE_PADDING, AbstractAdapter.font_height / 2)
 
@@ -52,15 +52,17 @@ class PadAdapter(AbstractAdapter):
             tooltip += u"\n    \u2022 " + glib.markup_escape_text(structure.get_name())
 
         self.props.tooltip = tooltip
-        self.background.props.tooltip = tooltip
+        self._background.props.tooltip = tooltip
 
 
 
-    def set_background_params(self, x, y, width):
+    def set_background_width(self, width):
+        y = -AbstractAdapter.BASE_PADDING
         if self.gst_object.get_direction() == gst.PAD_SINK:
+            x = -AbstractAdapter.DOUBLE_PADDING
             path_tpl = "m {x} {y} h {width} a {arc_radius} {arc_radius} 0 0 1 {arc_radius} {arc_radius} v {small_height} a {arc_radius} {arc_radius} 0 0 1 -{arc_radius} {arc_radius} h -{width} v -{height}"
         else:
-            x += AbstractAdapter.BASE_PADDING
+            x = AbstractAdapter.DOUBLE_PADDING - width + self.get_base_width()
             path_tpl = "m {x} {y} h {width} v {height} h -{width} a {arc_radius} {arc_radius} 0 0 1 -{arc_radius} -{arc_radius} v -{small_height} a {arc_radius} {arc_radius} 0 0 1 {arc_radius} -{arc_radius}"
 
         path = path_tpl.format(x = x,
@@ -69,11 +71,11 @@ class PadAdapter(AbstractAdapter):
                                width = width - AbstractAdapter.BASE_PADDING,
                                height = AbstractAdapter.font_height + AbstractAdapter.DOUBLE_PADDING,
                                small_height = AbstractAdapter.font_height)
-        self.background.props.data = path
+        self._background.props.data = path
 
 
     def get_base_width(self):
-        bounds = self.get_bounds()
+        bounds = self._base_group.get_bounds()
         return bounds.x2 - bounds.x1
 
 
@@ -113,7 +115,7 @@ class PadAdapter(AbstractAdapter):
         if pad_adapter != None:
             # Hack to get the real pad instance and not the weakproxy
             pad = pad_adapter.gst_object.get_parent_element().get_pad(pad_adapter.gst_object.get_name())
-            if not self.gst_object.can_link(pad):
+            if self.gst_object.get_direction() == pad.get_direction() or not self.gst_object.can_link(pad):
                 cursor = gtk.gdk.Cursor(gtk.gdk.X_CURSOR)
         self.get_canvas().props.window.set_cursor(cursor)
         return True

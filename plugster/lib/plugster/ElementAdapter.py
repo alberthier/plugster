@@ -80,18 +80,16 @@ class ElementAdapter(AbstractElementAdapter):
 
         for pad in self.gst_object.pads():
             adapter = pad.plugster_adapter
-            self._background_rect.lower(adapter.background)
-            adapter.background.lower(self._bounding_rect)
+            adapter.lower(self._bounding_rect)
             adapter_width = adapter.get_base_width()
+            adapter.set_background_width(pad_width + 2 * AbstractAdapter.DOUBLE_PADDING)
             if pad.get_direction() == gst.PAD_SINK:
                 adapter.props.x = AbstractAdapter.DOUBLE_PADDING
                 adapter.props.y = y_sink + AbstractAdapter.BASE_PADDING
-                adapter.set_background_params(0, y_sink, pad_width + 2 * AbstractAdapter.DOUBLE_PADDING)
                 y_sink += AbstractAdapter.font_height + 2 * AbstractAdapter.DOUBLE_PADDING
             else:
                 adapter.props.x = global_width - AbstractAdapter.DOUBLE_PADDING - adapter_width + PadAdapter.CONNECTOR_RADIUS
                 adapter.props.y = y_src + AbstractAdapter.BASE_PADDING
-                adapter.set_background_params(global_width - pad_width -2 * AbstractAdapter.DOUBLE_PADDING, y_src, pad_width + 2 * AbstractAdapter.DOUBLE_PADDING)
                 y_src += AbstractAdapter.font_height + 2 * AbstractAdapter.DOUBLE_PADDING
 
         y_src += AbstractAdapter.BASE_PADDING
