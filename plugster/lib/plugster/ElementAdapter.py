@@ -156,11 +156,16 @@ class ElementAdapter(AbstractElementAdapter):
         adapter.disconnect(self._on_drag_move_id)
         self._on_end_drag_id = None
         self._on_drag_move_id = None
+
+        scale = self.get_canvas().get_scale()
+        self._global_dx += (event.x_root - self._drag_x) * scale
+        self._global_dy += (event.y_root - self._drag_y) * scale
         dx = PipelineCanvas.place_coord_on_grid(self._global_dx)
         dy = PipelineCanvas.place_coord_on_grid(self._global_dy)
         self._update_position(dx, dy)
         adapter.gst_object.plugster_data.x += round(self._global_dx + dx)
         adapter.gst_object.plugster_data.y += round(self._global_dy + dy)
+
         self._drag_x = 0
         self._drag_y = 0
         self._global_dx = 0
@@ -171,5 +176,4 @@ class ElementAdapter(AbstractElementAdapter):
     def _update_position(self, dx, dy):
         self.translate(dx, dy)
         for pad in self.gst_object.pads():
-            adapter = pad.plugster_adapter
-            adapter.update_link()
+            pad.plugster_adapter.update_link()
