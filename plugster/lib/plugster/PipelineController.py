@@ -12,6 +12,7 @@ from XmlPipelineSerializer import *
 from AddElementCommand import *
 from RemoveElementsCommand import *
 from SetPropertyCommand import *
+from LinkPadsCommand import *
 
 class PipelineController(gobject.GObject):
 
@@ -132,10 +133,14 @@ class PipelineController(gobject.GObject):
         self._execute_command(SetPropertyCommand(self._root_pipeline, elements, property_param_spec, property_value))
 
 
+    def link_pads(self, src_elt_name, src_pad_name, sink_elt_name, sink_pad_name):
+        self._execute_command(LinkPadsCommand(self._root_pipeline, src_elt_name, src_pad_name, sink_elt_name, sink_pad_name))
+
+
     def _execute_command(self, command):
         self._root_pipeline.set_state(gst.STATE_NULL)
         command.do()
-        self._root_pipeline.set_state(gst.STATE_READY)
+        self._root_pipeline.set_state(gst.STATE_PAUSED)
 
 
     def _on_bus_message(self, bus, message):

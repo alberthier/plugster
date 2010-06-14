@@ -36,8 +36,6 @@ class PadAdapter(AbstractAdapter):
                                            line_width = 2.0,
                                            stroke_color = style.dark[gtk.STATE_NORMAL])
 
-        self.connect('button-press-event', self._on_start_drag)
-
         if self.gst_object.get_direction() == gst.PAD_SINK:
             self._background.props.fill_color = PadAdapter.SINK_COLOR
             title.translate(PadAdapter.CONNECTOR_RADIUS / 2 + AbstractAdapter.DOUBLE_PADDING, 0.0)
@@ -54,6 +52,9 @@ class PadAdapter(AbstractAdapter):
         self.props.tooltip = tooltip
         self._background.props.tooltip = tooltip
 
+        self.connect('button-press-event', self._on_start_drag)
+        self.gst_object.connect('linked', self._on_pad_linked)
+        self.gst_object.connect('unlinked', self._on_pad_unlinked)
 
 
     def set_background_width(self, width):
@@ -79,9 +80,14 @@ class PadAdapter(AbstractAdapter):
         return bounds.x2 - bounds.x1
 
 
+    def update_link(self):
+        if self._link != None:
+            self._update_link_pad(self.gst_object, self.gst_object.get_peer())
+
+
     def _get_connector_color(self):
         if self.gst_object.is_linked():
-            return Definitions.PadAdapter.LINKED_COLOR
+            return PadAdapter.LINKED_COLOR
         else:
             style = self.get_canvas().get_style()
             return style.bg[gtk.STATE_NORMAL]
@@ -89,34 +95,19 @@ class PadAdapter(AbstractAdapter):
 
     def _on_start_drag(self, adapter, widget, event):
         if self._on_end_drag_id == None and self._on_drag_move_id == None:
-            bounds = self._connector.get_bounds()
-            x = bounds.x1 + PadAdapter.CONNECTOR_RADIUS + 1.0
-            y = bounds.y1 + PadAdapter.CONNECTOR_RADIUS + 1.0
-            points = goocanvas.Points([(x, y), (event.x_root, event.y_root)])
-            parent = self.gst_object.get_parent_element().plugster_data.get_pipeline().plugster_adapter.links_layer
-            self._link = goocanvas.Polyline(parent = parent,
-                                            points = points,
-                                            line_width = 4,
-                                            stroke_color = PadAdapter.LINKED_COLOR,
-                                            line_cap = cairo.LINE_CAP_ROUND)
+            self._create_link()
+            self._update_link_coords(self.gst_object, event.x_root, event.y_root)
             self._on_end_drag_id = adapter.connect('button-release-event', self._on_end_drag)
             self._on_drag_move_id = adapter.connect('motion-notify-event', self._on_drag_move)
         return True
 
 
     def _on_drag_move(self, adapter, widget, event):
-        bounds = self._connector.get_bounds()
-        x = bounds.x1 + PadAdapter.CONNECTOR_RADIUS + 1.0
-        y = bounds.y1 + PadAdapter.CONNECTOR_RADIUS + 1.0
-        points = goocanvas.Points([(x, y), (event.x_root, event.y_root)])
-        self._link.props.points = points
+        self._update_link_coords(self.gst_object, event.x_root, event.y_root)
         pad_adapter = self._get_pad_adapter_at(event.x_root, event.y_root)
         cursor = None
-        if pad_adapter != None:
-            # Hack to get the real pad instance and not the weakproxy
-            pad = pad_adapter.gst_object.get_parent_element().get_pad(pad_adapter.gst_object.get_name())
-            if self.gst_object.get_direction() == pad.get_direction() or not self.gst_object.can_link(pad):
-                cursor = gtk.gdk.Cursor(gtk.gdk.X_CURSOR)
+        if not self._can_link_adapter(pad_adapter):
+            cursor = gtk.gdk.Cursor(gtk.gdk.X_CURSOR)
         self.get_canvas().props.window.set_cursor(cursor)
         return True
 
@@ -129,6 +120,21 @@ class PadAdapter(AbstractAdapter):
         self._on_drag_move_id = None
         self._link.remove()
         self._link = None
+
+        pad_adapter = self._get_pad_adapter_at(event.x_root, event.y_root)
+        if self._can_link_adapter(pad_adapter):
+            pipeline_controller = self.gst_object.get_parent_element().plugster_data.get_pipeline().plugster_pipeline_controller
+            if self.gst_object.get_direction() == gst.PAD_SINK:
+                src_pad = pad_adapter.gst_object
+                sink_pad = self.gst_object
+            else:
+                src_pad =  self.gst_object
+                sink_pad = pad_adapter.gst_object
+            sink_elt_name = sink_pad.get_parent_element().get_name()
+            sink_pad_name = sink_pad.get_name()
+            src_elt_name = src_pad.get_parent_element().get_name()
+            src_pad_name = src_pad.get_name()
+            pipeline_controller.link_pads(src_elt_name, src_pad_name, sink_elt_name, sink_pad_name)
         return True
 
 
@@ -141,3 +147,50 @@ class PadAdapter(AbstractAdapter):
                     return p
                 p = p.get_parent()
         return None
+
+
+    def _can_link_adapter(self, pad_adapter):
+        if pad_adapter != None:
+            # Hack to get the real pad instance and not the weakproxy
+            pad = pad_adapter.gst_object.get_parent_element().get_pad(pad_adapter.gst_object.get_name())
+            return self.gst_object.get_direction() != pad.get_direction() and self.gst_object.can_link(pad)
+        return False
+
+
+    def _on_pad_linked(self, pad, peer_pad):
+        self._connector.props.fill_color = self._get_connector_color()
+        if self.gst_object.get_direction() == gst.PAD_SRC:
+            self._create_link()
+            self._update_link_pad(pad, peer_pad)
+            peer_pad.plugster_adapter._link = self._link
+
+
+    def _on_pad_unlinked(self, pad, peer_pad):
+        self._connector.props.fill_color = self._get_connector_color()
+        self._link.remove()
+        self._link = None
+
+
+    def _create_link(self):
+        parent = self.gst_object.get_parent_element().plugster_data.get_pipeline().plugster_adapter.links_layer
+        self._link = goocanvas.Polyline(parent = parent,
+                                        line_width = 4,
+                                        stroke_color = PadAdapter.LINKED_COLOR,
+                                        line_cap = cairo.LINE_CAP_ROUND)
+
+
+    def _update_link_coords(self, pad, x, y):
+        bounds = pad.plugster_adapter._connector.get_bounds()
+        px = bounds.x1 + PadAdapter.CONNECTOR_RADIUS + 1.0
+        py = bounds.y1 + PadAdapter.CONNECTOR_RADIUS + 1.0
+        if pad.get_direction() == gst.PAD_SINK:
+            self._link.props.points = goocanvas.Points([(x, y), (px, py)])
+        else:
+            self._link.props.points = goocanvas.Points([(px, py), (x, y)])
+
+
+    def _update_link_pad(self, pad1, pad2):
+        bounds = pad2.plugster_adapter._connector.get_bounds()
+        x = bounds.x1 + PadAdapter.CONNECTOR_RADIUS + 1.0
+        y = bounds.y1 + PadAdapter.CONNECTOR_RADIUS + 1.0
+        self._update_link_coords(pad1, x, y)
