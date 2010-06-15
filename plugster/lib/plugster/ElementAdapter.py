@@ -175,5 +175,7 @@ class ElementAdapter(AbstractElementAdapter):
 
     def _update_position(self, dx, dy):
         self.translate(dx, dy)
+        # FIXME: calling get_bounds is a hack to force the refresh of the item otherwise the coords are not up to date. Find a better way to do that
+        self.get_bounds()
         for pad in self.gst_object.pads():
             pad.plugster_adapter.update_link()
