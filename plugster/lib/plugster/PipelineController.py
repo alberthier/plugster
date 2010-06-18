@@ -54,6 +54,7 @@ class PipelineController(gobject.GObject):
     def close(self):
         if self._root_pipeline:
             self._root_pipeline.plugster_selection.clear()
+            self._root_pipeline.plugster_adapter.disconnect_signals()
         self._filepath = None
         self._root_pipeline = None
 

@@ -53,8 +53,13 @@ class PadAdapter(AbstractAdapter):
         self._background.props.tooltip = tooltip
 
         self.connect('button-press-event', self._on_start_drag)
-        self.gst_object.connect('linked', self._on_pad_linked)
-        self.gst_object.connect('unlinked', self._on_pad_unlinked)
+        self._on_pad_linked_id = self.gst_object.connect('linked', self._on_pad_linked)
+        self._on_pad_unlinked_id = self.gst_object.connect('unlinked', self._on_pad_unlinked)
+
+
+    def disconnect_signals(self):
+        self.gst_object.disconnect(self._on_pad_linked_id)
+        self.gst_object.disconnect(self._on_pad_unlinked_id)
 
 
     def set_background_width(self, width):

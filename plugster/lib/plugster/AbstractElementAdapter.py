@@ -6,6 +6,11 @@ class AbstractElementAdapter(AbstractAdapter):
         AbstractAdapter.__init__(self, gst_element, parent)
 
 
+    def disconnect_signals(self):
+        for child in self.gst_object:
+            child.plugster_adapter.disconnect_signals()
+
+
     def get_selection(self):
         return self.gst_object.plugster_data.get_pipeline().plugster_selection
 

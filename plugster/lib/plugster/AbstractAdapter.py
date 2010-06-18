@@ -22,5 +22,9 @@ class AbstractAdapter(goocanvas.Group):
             AbstractAdapter.font_height = float(pango.PIXELS(metrics.get_ascent() + metrics.get_descent()))
 
 
+    def disconnect_signals(self):
+        pass
+
+
     def _on_object_deleted(self, gst_object):
         self.remove()
