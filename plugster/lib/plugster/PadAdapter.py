@@ -127,30 +127,41 @@ class PadAdapter(AbstractAdapter):
         self._link = None
 
         pad_adapter = self._get_pad_adapter_at(event.x_root, event.y_root)
-        if self._can_link_adapter(pad_adapter):
-            pipeline_controller = self.gst_object.get_parent_element().plugster_data.get_pipeline().plugster_pipeline_controller
-            if self.gst_object.get_direction() == gst.PAD_SINK:
-                src_pad = pad_adapter.gst_object
-                sink_pad = self.gst_object
-            else:
-                src_pad =  self.gst_object
-                sink_pad = pad_adapter.gst_object
-            sink_elt_name = sink_pad.get_parent_element().get_name()
-            sink_pad_name = sink_pad.get_name()
-            src_elt_name = src_pad.get_parent_element().get_name()
-            src_pad_name = src_pad.get_name()
-            pipeline_controller.link_pads(src_elt_name, src_pad_name, sink_elt_name, sink_pad_name)
+        link = True
+
+        if pad_adapter == None and self.gst_object.is_linked():
+            pad_adapter = self.gst_object.get_peer().plugster_adapter
+            link = False
+
+        if pad_adapter:
+            if link and self._can_link_adapter(pad_adapter) or not link:
+                pipeline_controller = self.gst_object.get_parent_element().plugster_data.get_pipeline().plugster_pipeline_controller
+                if self.gst_object.get_direction() == gst.PAD_SINK:
+                    src_pad = pad_adapter.gst_object
+                    sink_pad = self.gst_object
+                else:
+                    src_pad =  self.gst_object
+                    sink_pad = pad_adapter.gst_object
+                sink_elt_name = sink_pad.get_parent_element().get_name()
+                sink_pad_name = sink_pad.get_name()
+                src_elt_name = src_pad.get_parent_element().get_name()
+                src_pad_name = src_pad.get_name()
+                if link:
+                    pipeline_controller.link_pads(src_elt_name, src_pad_name, sink_elt_name, sink_pad_name)
+                else:
+                    pipeline_controller.unlink_pads(src_elt_name, src_pad_name, sink_elt_name, sink_pad_name)
         return True
 
 
     def _get_pad_adapter_at(self, x, y):
         items = self.get_canvas().get_items_at(x, y, False)
-        for item in items:
-            p = item
-            while p != None:
-                if isinstance(p, PadAdapter) and p != self:
-                    return p
-                p = p.get_parent()
+        if items:
+            for item in items:
+                p = item
+                while p != None:
+                    if isinstance(p, PadAdapter) and p != self:
+                        return p
+                    p = p.get_parent()
         return None
 
 
@@ -172,16 +183,18 @@ class PadAdapter(AbstractAdapter):
 
     def _on_pad_unlinked(self, pad, peer_pad):
         self._connector.props.fill_color = self._get_connector_color()
-        self._link.remove()
-        self._link = None
+        if self._link:
+            self._link.remove()
+            self._link = None
 
 
     def _create_link(self):
-        parent = self.gst_object.get_parent_element().plugster_data.get_pipeline().plugster_adapter.links_layer
-        self._link = goocanvas.Polyline(parent = parent,
-                                        line_width = 4,
-                                        stroke_color = PadAdapter.LINKED_COLOR,
-                                        line_cap = cairo.LINE_CAP_ROUND)
+        if self._link == None:
+            parent = self.gst_object.get_parent_element().plugster_data.get_pipeline().plugster_adapter.links_layer
+            self._link = goocanvas.Polyline(parent = parent,
+                                            line_width = 4,
+                                            stroke_color = PadAdapter.LINKED_COLOR,
+                                            line_cap = cairo.LINE_CAP_ROUND)
 
 
     def _update_link_coords(self, pad, x, y):

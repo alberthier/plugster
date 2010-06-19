@@ -13,6 +13,7 @@ from AddElementCommand import *
 from RemoveElementsCommand import *
 from SetPropertyCommand import *
 from LinkPadsCommand import *
+from UnlinkPadsCommand import *
 
 class PipelineController(gobject.GObject):
 
@@ -136,6 +137,10 @@ class PipelineController(gobject.GObject):
 
     def link_pads(self, src_elt_name, src_pad_name, sink_elt_name, sink_pad_name):
         self._execute_command(LinkPadsCommand(self._root_pipeline, src_elt_name, src_pad_name, sink_elt_name, sink_pad_name))
+
+
+    def unlink_pads(self, src_elt_name, src_pad_name, sink_elt_name, sink_pad_name):
+        self._execute_command(UnlinkPadsCommand(self._root_pipeline, src_elt_name, src_pad_name, sink_elt_name, sink_pad_name))
 
 
     def _execute_command(self, command):
