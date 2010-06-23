@@ -150,8 +150,6 @@ class PipelineController(gobject.GObject):
 
 
     def _on_bus_message(self, bus, message):
-        print "Bus message"
         if message.type == gst.MESSAGE_STATE_CHANGED:
-            print "    State changed: {0}".format(self._root_pipeline.get_state())
             self.emit('pipeline-changed', self._root_pipeline)
         return True
