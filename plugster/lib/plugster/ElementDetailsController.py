@@ -73,27 +73,29 @@ class ElementDetailsController(object):
             self.buffer.insert(self.buffer.get_end_iter(), factory.plugin.get_origin())
             self.buffer.insert(self.buffer.get_end_iter(), "\n\n")
 
-            self.buffer.insert_with_tags(self.buffer.get_end_iter(), "Pad templates:", self._title2)
-            self.buffer.insert(self.buffer.get_end_iter(), "\n")
-            for template in element.get_pad_template_list():
-                if template.direction == gst.PAD_SINK:
-                    template_dir = "SINK template: "
-                else:
-                    template_dir = "SRC template: "
-                self.buffer.insert_with_tags(self.buffer.get_end_iter(), template_dir, self._bold)
-                self.buffer.insert(self.buffer.get_end_iter(), template.name_template)
+            template_list = element.get_pad_template_list()
+            if template_list != None:
+                self.buffer.insert_with_tags(self.buffer.get_end_iter(), "Pad templates:", self._title2)
                 self.buffer.insert(self.buffer.get_end_iter(), "\n")
-                self.buffer.insert_with_tags(self.buffer.get_end_iter(), "Availability: ", self._bold)
-                self.buffer.insert(self.buffer.get_end_iter(), template.presence.value_nick)
-                self.buffer.insert(self.buffer.get_end_iter(), "\n")
-                self.buffer.insert_with_tags(self.buffer.get_end_iter(), "Capabilities:", self._bold)
-                for structure in template.get_caps():
-                    self.buffer.insert(self.buffer.get_end_iter(), u"\n    \u2022 " + glib.markup_escape_text(structure.get_name()))
-                    for i in xrange(structure.n_fields()):
-                        name = structure.nth_field_name(i)
-                        val = self._get_structure_value_string(structure[name])
-                        self.buffer.insert(self.buffer.get_end_iter(), u"\n        \u2022 {0} = {1}".format(glib.markup_escape_text(name), glib.markup_escape_text(val)))
-                self.buffer.insert(self.buffer.get_end_iter(), "\n\n")
+                for template in template_list:
+                    if template.direction == gst.PAD_SINK:
+                        template_dir = "SINK template: "
+                    else:
+                        template_dir = "SRC template: "
+                    self.buffer.insert_with_tags(self.buffer.get_end_iter(), template_dir, self._bold)
+                    self.buffer.insert(self.buffer.get_end_iter(), template.name_template)
+                    self.buffer.insert(self.buffer.get_end_iter(), "\n")
+                    self.buffer.insert_with_tags(self.buffer.get_end_iter(), "Availability: ", self._bold)
+                    self.buffer.insert(self.buffer.get_end_iter(), template.presence.value_nick)
+                    self.buffer.insert(self.buffer.get_end_iter(), "\n")
+                    self.buffer.insert_with_tags(self.buffer.get_end_iter(), "Capabilities:", self._bold)
+                    for structure in template.get_caps():
+                        self.buffer.insert(self.buffer.get_end_iter(), u"\n    \u2022 " + glib.markup_escape_text(structure.get_name()))
+                        for i in xrange(structure.n_fields()):
+                            name = structure.nth_field_name(i)
+                            val = self._get_structure_value_string(structure[name])
+                            self.buffer.insert(self.buffer.get_end_iter(), u"\n        \u2022 {0} = {1}".format(glib.markup_escape_text(name), glib.markup_escape_text(val)))
+                    self.buffer.insert(self.buffer.get_end_iter(), "\n\n")
 
 
     def _get_structure_value_string(self, value):
