@@ -8,7 +8,10 @@ class AbstractElementAdapter(AbstractAdapter):
 
     def disconnect_signals(self):
         for child in self.gst_object:
-            child.plugster_adapter.disconnect_signals()
+            try:
+                child.plugster_adapter.disconnect_signals()
+            except AttributeError:
+                pass
 
 
     def get_selection(self):
