@@ -23,8 +23,9 @@ class ElementAdapter(AbstractElementAdapter):
         factory = self.gst_object.get_factory()
         self.props.tooltip = "<b>{0}</b>\n{1}".format(glib.markup_escape_text(factory.get_longname()), glib.markup_escape_text(factory.get_description()))
 
-        self.gst_object.connect('pad-added', self._on_pad_added)
-        self.gst_object.connect('no-more-pads', self._relayout)
+        self.gst_object.connect('pad-added', self._thread_safe_on_pad_added)
+        self.gst_object.connect('pad-removed', self._thread_safe_on_pad_removed)
+        self.gst_object.connect('no-more-pads', self._thread_safe_relayout)
         self.connect('button-press-event', self._on_start_drag)
 
         data = self.gst_object.plugster_data
@@ -58,8 +59,25 @@ class ElementAdapter(AbstractElementAdapter):
         self.translate(data.x, data.y)
 
 
+
+    def _thread_safe_on_pad_added(self, element, pad):
+        glib.idle_add(self._on_pad_added, element, pad)
+
+
+    def _thread_safe_on_pad_removed(self, element, pad):
+        glib.idle_add(self._on_pad_removed, element, pad)
+
+
+    def _thread_safe_relayout(self, element):
+        glib.idle_add(self._relayout, element)
+
+
     def _on_pad_added(self, element, pad):
         PadAdapter(pad, self)
+
+
+    def _on_pad_removed(self, element, pad):
+        pad.plugster_adapter.remove()
 
 
     def _relayout(self, element):

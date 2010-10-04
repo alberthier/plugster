@@ -1,5 +1,4 @@
 - Python 3 compatibility
-- Element description view
 - use GtkInfoBar for error / Warnings
 - GStreamer / GLib error log handler
 
@@ -9,3 +8,4 @@ Folders:
 - model
 
 Bugs:
+- Update tooltips after each command. Better: generate tooltip on demand

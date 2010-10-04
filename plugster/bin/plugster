@@ -25,5 +25,7 @@ def start(plugster_path):
 if __name__ == "__main__":
     plugster_path = get_plugster_path()
     sys.path.append(os.path.join(plugster_path, "lib"))
+    glib.threads_init()
+    gtk.gdk.threads_init()
     glib.idle_add(start, plugster_path)
     gtk.main()
