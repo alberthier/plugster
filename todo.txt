@@ -6,6 +6,3 @@ Folders:
 - propertyview
 - adapters
 - model
-
-Bugs:
-- Update tooltips after each command. Better: generate tooltip on demand

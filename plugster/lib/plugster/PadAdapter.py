@@ -45,13 +45,8 @@ class PadAdapter(AbstractAdapter):
             bounds = title.get_bounds()
             self._connector.translate(bounds.x2 - bounds.x1 + PadAdapter.CONNECTOR_RADIUS / 2 + AbstractAdapter.DOUBLE_PADDING, AbstractAdapter.font_height / 2)
 
-        tooltip = "<b>Capabilities</b>"
-        for structure in self.gst_object.get_caps():
-            tooltip += u"\n    \u2022 " + glib.markup_escape_text(structure.get_name())
-
-        self.props.tooltip = tooltip
-        self._background.props.tooltip = tooltip
-
+        self.connect('query-tooltip', self._on_tooltip)
+        self._background.connect('query-tooltip', self._on_tooltip)
         self.connect('button-press-event', self._on_start_drag)
         self._on_pad_linked_id = self.gst_object.connect('linked', self._on_pad_linked)
         self._on_pad_unlinked_id = self.gst_object.connect('unlinked', self._on_pad_unlinked)
@@ -88,6 +83,15 @@ class PadAdapter(AbstractAdapter):
     def update_link(self):
         if self._link != None:
             self._update_link_pad(self.gst_object, self.gst_object.get_peer())
+
+
+    def _on_tooltip(self, item, x, y, keyboard_mode, tooltip):
+        text = "<b>Capabilities</b>"
+        for structure in self.gst_object.get_caps():
+            text += u"\n    \u2022 " + glib.markup_escape_text(structure.get_name())
+
+        tooltip.set_markup(text)
+        return True
 
 
     def _get_connector_color(self):
